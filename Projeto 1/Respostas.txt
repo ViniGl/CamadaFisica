@@ -1,0 +1,10 @@
+
+
+A função encode transforma todos os caracteres ASCII em hexadecimais; e a função decode transforma todos os hexadecimais em caracteres ASCII.
+
+Baud rate é a taxa de transmissão de bits dado por bits por segundo. Bit de paridade é um bit que indentifica a paridade do byte (paridade depende da quantidade de '1' presentes no byte), possibilitando a detecção de erros na transmissão. Stop bit é o bit que indica a finalização da transmissão.
+
+O buffer é . Para a transmissão e para a recepção, o buffer é acessado pela função 'sendData' e 'getData' respectivamente, no arquivo 'aplicação.py'. No caso da transmissão, a função 'sendData', no arquivo 'enlace.py' faz com que os dados enviados sejam definidos pela função 'sendBuffer', do arquivo 'enlaceTx.py' como o buffer transmitido. Então, o buffer é transmitido codificado em hexadecimal para o arduíno pela função 'write', do arquivo 'interfaceFisica.py'.
+Com a transmissão realizada, a função 'getData' ativa a função 'getNData' que faz com que o buffer da classe 'Rx' receba todos os dados transmitidos previamente. Após receber todos os dados, o buffer é recebido e decodificado de volta em binário pela função 'read' da classe 'fisica'.
+
+A transmissão poderia ser realizada mais lentamente diminuindo o baudrate e/ou adicionando um bit de paridade (resultando em dois bits de paridade) e/ou adicionando um stop bit (resultando em stop bits).
