@@ -10,7 +10,7 @@
 
 print("comecou")
 
-from enlace import *
+from enlaceTransmissao import *
 import time
 
 # voce deverá descomentar e configurar a porta com através da qual ira fazer a
@@ -24,11 +24,7 @@ import time
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 serialName = "COM3"                  # Windows(variacao de)
 
-
-
 print("porta COM aberta com sucesso")
-
-
 
 def main():
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
@@ -45,50 +41,29 @@ def main():
 
     # a seguir ha um exemplo de dados sendo carregado para transmissao
     # voce pode criar o seu carregando os dados de uma imagem. Tente descobrir
-    #como fazer isso  
+    #como fazer isso
+    print ("Gerando dados para transmissao")
+  
    
     ListTxBuffer =list()
 
-    with open('gato.jpg', 'rb') as imagem:
+    with open('gati.jpg', 'rb') as imagem:
     	f = imagem.read()
 
     txBuffer = bytes(f)
     txLen    = len(txBuffer)
+    print("Total de bytes: {}".format(txlen))
 
-    datarate = txLen*11*2/com.fisica.baudrate
-
-    print("Tempo estimado para transmissao: {:.4f}".format(datarate))
+    datarate = com.fisica.baudrate*11/8
+    print("Tempo esperado de transmissão: {}".format(datarate))
 
     # Transmite dado
-    print("Transmitindo {} bytes".format(txLen))
-    start_time = time.time()
+    print("tentado transmitir .... {} bytes".format(txLen))
     com.sendData(txBuffer)
-
-    
 
         
     # Atualiza dados da transmissão
     #txSize = com.tx.getStatus()
-   
-
-    # Faz a recepção dos dados
-    print ("Recebendo dados .... ")
-    #bytesSeremLidos=com.rx.getBufferLen()
-  
-        
-    rxBuffer, nRx = com.getData(txLen)
-
-    # log
-    print ("Lido {} bytes".format(nRx))
-    print("Tempo demorado: {:.4f}".format(time.time() - start_time))
-    
-    #print (rxBuffer)
-
-    f2 = open('gato2.jpg', 'wb')
-    f2.write(rxBuffer)
-    f2.close()
-
-    
 
     # Encerra comunicação
     print("-------------------------")
