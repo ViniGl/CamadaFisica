@@ -9,9 +9,8 @@
 ####################################################
 
 
-from enlace import *
+from enlaceRecepcao import *
 import time
-from fisicaRecepcao import fisica
 # voce deverá descomentar e configurar a porta com através da qual ira fazer a
 # comunicaçao
 # Serial Com Port
@@ -19,19 +18,16 @@ from fisicaRecepcao import fisica
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-#serialName = "/dev/ttyACM0"           # Ubuntu (variacao de)
+serialName = "/dev/ttyACM0"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM3"                  # Windows(variacao de)
-
-fisica = fisica()
-
+# serialName = "COM3"                  # Windows(variacao de)
 
 
 
 def main():
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
     com = enlace(serialName)
-
+    rx = com.rx
     # Ativa comunicacao
     com.enable()
 
@@ -43,17 +39,12 @@ def main():
 
     # Faz a recepção dos dados
     print ("Recebendo dados .... ")
-    bytesSeremLidos=com.rx.getBufferLen()
 
-    check = False
-    tmp = 0
-    while not check:
-        rxBuffer, nRx = com.getData(bytesSeremLidos)
-        recebido = rxBuffer
-    if recebido == tmp:
-        check = True
-    else:
-        tmp = recebido
+    while rx.getBufferLen()==0:
+        try:
+            rxBuffer, nRx = rx.getNData()
+        except:
+            print("Esperando ...")
 
 
     # log
@@ -65,10 +56,10 @@ def main():
     f2.write(rxBuffer)
     f2.close()
 
-    D = fisica.baudrate
-    n = 8
-    b = 11
-    time = D*((b+n)/n)
+    # D = fisica.baudrate
+    # n = 8
+    # b = 11
+    # time = D*((b+n)/n)
     #print('O tempo de transmissao foi aproximadamente {} segundos'.format(time))
 
     # Encerra comunicação
