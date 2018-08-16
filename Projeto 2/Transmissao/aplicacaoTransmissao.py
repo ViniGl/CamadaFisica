@@ -52,18 +52,21 @@ def main():
 
     txBuffer = bytes(f)
     txLen    = len(txBuffer)
+
     print("Total de bytes: {}".format(txlen))
 
-    datarate = com.fisica.baudrate*11/8
-    print("Tempo esperado de transmissão: {}".format(datarate))
+    datarate = com.fisica.baudrate*8/11
+    tempo = txLen*8/datarate
+    print("Tempo estimado para transmissao: {:.4f}".format(datarate))
 
     # Transmite dado
-    print("tentado transmitir .... {} bytes".format(txLen))
+    print("Transmitindo {} bytes".format(txLen))
+    start_time = time.time()
     com.sendData(txBuffer)
 
         
     # Atualiza dados da transmissão
-    #txSize = com.tx.getStatus()
+    txSize = com.tx.getStatus()
 
     # Encerra comunicação
     print("-------------------------")
