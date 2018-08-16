@@ -8,11 +8,10 @@
 #  Aplicação
 ####################################################
 
-print("comecou")
 
 from enlace import *
 import time
-from interfaceFisica import fisica
+from fisicaRecepcao import fisica
 # voce deverá descomentar e configurar a porta com através da qual ira fazer a
 # comunicaçao
 # Serial Com Port
@@ -26,8 +25,6 @@ serialName = "COM3"                  # Windows(variacao de)
 
 fisica = fisica()
 
-
-print("porta COM aberta com sucesso")
 
 
 
@@ -46,13 +43,13 @@ def main():
 
     # Faz a recepção dos dados
     print ("Recebendo dados .... ")
-    #bytesSeremLidos=com.rx.getBufferLen()
+    bytesSeremLidos=com.rx.getBufferLen()
 
     check = False
     tmp = 0
     while not check:
-    rxBuffer, nRx = com.getData(txLen)
-    recebido = rxBuffer
+        rxBuffer, nRx = com.getData(bytesSeremLidos)
+        recebido = rxBuffer
     if recebido == tmp:
         check = True
     else:
@@ -60,7 +57,7 @@ def main():
 
 
     # log
-    print ("Lido {} bytes ".format(nRx))
+    print ("Lido {} bytes".format(nRx))
 
     #print (rxBuffer)
 
@@ -72,13 +69,17 @@ def main():
     n = 8
     b = 11
     time = D*((b+n)/n)
-    print('O tempo de transmissao foi aproximadamente {} segundos'.format(time))
+    #print('O tempo de transmissao foi aproximadamente {} segundos'.format(time))
 
     # Encerra comunicação
     print("-------------------------")
     print("Comunicação encerrada")
     print("-------------------------")
     com.disable()
+
+    raw.input("Pressione qualquer tecla para sair")
+    exit()
+
 
     #so roda o main quando for executado do terminal ... se for chamado dentro de outro modulo nao roda
 if __name__ == "__main__":

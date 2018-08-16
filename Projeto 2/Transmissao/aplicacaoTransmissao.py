@@ -11,6 +11,7 @@
 print("comecou")
 
 from enlaceTransmissao import *
+#from GUI import GUI
 import time
 
 # voce deverá descomentar e configurar a porta com através da qual ira fazer a
@@ -44,10 +45,11 @@ def main():
     #como fazer isso
     print ("Gerando dados para transmissao")
   
-   
     ListTxBuffer =list()
 
-    with open('gati.jpg', 'rb') as imagem:
+    #arquivo = GUI.e1
+
+    with open('gatinho.jpg', 'rb') as imagem:
     	f = imagem.read()
 
     txBuffer = bytes(f)
@@ -73,6 +75,9 @@ def main():
     print("Comunicação encerrada")
     print("-------------------------")
     com.disable()
+
+    raw.input("Pressione qualquer tecla para sair")
+    exit()
 
     #so roda o main quando for executado do terminal ... se for chamado dentro de outro modulo nao roda
 if __name__ == "__main__":
