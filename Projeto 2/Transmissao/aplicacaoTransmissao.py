@@ -8,8 +8,6 @@
 #  Aplicação
 ####################################################
 
-print("comecou")
-
 from enlaceTransmissao import *
 #from GUI import GUI
 import time
@@ -23,9 +21,7 @@ import time
 
 #serialName = "/dev/ttyACM0"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM3"                  # Windows(variacao de)
-
-print("porta COM aberta com sucesso")
+serialName = "COM6"                  # Windows(variacao de)
 
 def main():
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
@@ -49,26 +45,45 @@ def main():
 
     #arquivo = GUI.e1
 
-    with open('gatinho.jpg', 'rb') as imagem:
+    """
+    with open('../img/gatinho.jpg', 'rb') as imagem:
     	f = imagem.read()
+
+    txBuffer = bytes(f)
+    txLen = len(txBuffer)
+
+    print("Total de bytes: {}".format(txLen))
+
+    datarate = com.fisica.baudrate*8/11
+    tempo = txLen*8/datarate
+    print("Tempo estimado para transmissao: {:.4f}".format(tempo))
+
+    # Atualiza dados da transmissão
+    #com.tx.getStatus()
+
+    # Transmite dado
+    start_time = time.time()
+    com.sendData(txBuffer)
+    """
+    with open('../img/a.png', 'rb') as imagem:
+        f = imagem.read()
 
     txBuffer = bytes(f)
     txLen    = len(txBuffer)
 
-    print("Total de bytes: {}".format(txlen))
-
     datarate = com.fisica.baudrate*8/11
     tempo = txLen*8/datarate
-    print("Tempo estimado para transmissao: {:.4f}".format(datarate))
+
+    print("Tempo estimado para transmissao: {:.4f}".format(tempo))
 
     # Transmite dado
     print("Transmitindo {} bytes".format(txLen))
     start_time = time.time()
     com.sendData(txBuffer)
 
-        
     # Atualiza dados da transmissão
-    txSize = com.tx.getStatus()
+    com.tx.getStatus()
+    
 
     # Encerra comunicação
     print("-------------------------")
@@ -76,7 +91,7 @@ def main():
     print("-------------------------")
     com.disable()
 
-    raw.input("Pressione qualquer tecla para sair")
+    input("\nPressione enter para sair")
     exit()
 
     #so roda o main quando for executado do terminal ... se for chamado dentro de outro modulo nao roda

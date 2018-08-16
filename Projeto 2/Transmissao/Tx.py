@@ -36,7 +36,7 @@ class TX(object):
         while not self.threadStop:
             if(self.threadMutex):
                 self.transLen = self.fisica.write(self.buffer)
-                #print("O tamanho transmitido. IMpressao dentro do thread {}" .format(self.transLen))
+                print("O tamanho transmitido. Impressao dentro do thread {}" .format(self.transLen))
                 self.threadMutex = False
 
     def threadStart(self):
@@ -73,6 +73,7 @@ class TX(object):
         self.transLen   = 0
         self.buffer = data
         self.threadMutex  = True
+        print("Buffer enviado")
 
     def getBufferLen(self):
         """ Return the total size of bytes in the TX buffer
@@ -82,7 +83,7 @@ class TX(object):
     def getStatus(self):
         """ Return the last transmission size
         """
-        print("O tamanho transmitido. Impressao fora do thread {}" .format(self.transLen))
+        #print("O tamanho transmitido. Impressao fora do thread {}" .format(self.transLen))
         return(self.transLen)
         
 
