@@ -67,5 +67,10 @@ class fisica(object):
         sides of communication.
         """
         nTx = self.port.write(self.encode(txBuffer))
+        # datarate = com.fisica.baudrate*8/11
+        # tempo = txLen*8/datarate
+        # print("Tempo estimado para transmissao: {:.4f}".format(tempo))
+        # start_time = time.time()
         self.port.flush()
+        # print("Tempo total de transmiss'ao: {}".format(time.time()-start_time))
         return(nTx/2)

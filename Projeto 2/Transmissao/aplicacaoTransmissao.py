@@ -28,18 +28,20 @@ serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
 def Interface():
 
     master = Tk()
-    Label(master, text="Mensagem").grid(row=0)
+    Label(master, text="Clique enviar para enviar seu arquivo").grid(row=0)
     # e1 = Entry(master)
     Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
     img = filedialog.askopenfilename(initialdir = "../img",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
     # e1.grid(row=0, column=1)
     print(type(img))
-    Button(master, text='Enviar', command=command=lambda : main(img)).grid(row=4, column=0, sticky=W, pady=4)
-    # Button(master, text='Quit', command=master.quit).grid(row=3, column=1, sticky=W, pady=4)
+    Button(master, text='Enviar', command=lambda : main(img)).grid(row=3, column=0, sticky=W, pady=4)
+    Button(master, text='Quit', command=master.quit).grid(row=3, column=1, sticky=W, pady=4)
 
 
 
     mainloop()
+
+
 
 def main(img):
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
@@ -71,11 +73,10 @@ def main(img):
     datarate = com.fisica.baudrate*8/11
     tempo = txLen*8/datarate
 
-    print("Tempo estimado para transmissao: {:.4f}".format(tempo))
 
     # Transmite dado
     print("Transmitindo {} bytes".format(txLen))
-    start_time = time.time()
+
     com.sendData(txBuffer)
 
     # Atualiza dados da transmissão
@@ -84,7 +85,7 @@ def main(img):
 
     # Encerra comunicação
     time.sleep(1.5+tempo*1.4)
-    print("Tempo total de transmiss'ao: {}".format(time.time()-start_time))
+
     print("-------------------------")
     print("Comunicação encerrada")
     print("-------------------------")
