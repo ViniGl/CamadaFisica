@@ -101,9 +101,14 @@ class RX(object):
 
         check = False
         tmp= "nan"
+        while self.getBufferLen()==0:
+            print("buffer = {}".format(self.getBufferLen()))
+
+
         while not check:
             BufferRecebido = self.getBufferLen()
-            time.sleep(0.5)
+            print("recebido =" + str(BufferRecebido))
+            time.sleep(2)
             if BufferRecebido == tmp:
                 check = True
             else:
@@ -111,8 +116,9 @@ class RX(object):
         #
         # while(self.getBufferLen() < size):
         #     time.sleep(0.05)
-#
-        return(self.getBuffer(BufferRecebido))
+        print("passou")
+        self.clearBuffer()
+        return(BufferRecebido)
 
 
     def clearBuffer(self):

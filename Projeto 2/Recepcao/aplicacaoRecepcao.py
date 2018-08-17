@@ -18,7 +18,7 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-serialName = "/dev/ttyACM0"           # Ubuntu (variacao de)
+serialName = "/dev/ttyACM2"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 # serialName = "COM3"                  # Windows(variacao de)
 
@@ -40,11 +40,8 @@ def main():
     # Faz a recepção dos dados
     print ("Recebendo dados .... ")
 
-    while rx.getBufferLen()==0:
-        try:
-            rxBuffer, nRx = rx.getNData()
-        except:
-            print("Esperando ...")
+    rxBuffer, nRx = rx.getNData()
+
 
 
     # log
@@ -53,7 +50,7 @@ def main():
     #print (rxBuffer)
 
     f2 = open('ArquivoRecebido.jpg', 'wb')
-    f2.write(rxBuffer)
+    f2.write(bytes(rxBuffer))
     f2.close()
 
     # D = fisica.baudrate
@@ -67,9 +64,6 @@ def main():
     print("Comunicação encerrada")
     print("-------------------------")
     com.disable()
-
-    raw.input("Pressione qualquer tecla para sair")
-    exit()
 
 
     #so roda o main quando for executado do terminal ... se for chamado dentro de outro modulo nao roda
