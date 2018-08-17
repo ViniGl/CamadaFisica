@@ -21,27 +21,25 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
+#serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-# serialName = "COM8"                  # Windows(variacao de)
+serialName = "COM8"                  # Windows(variacao de)
 
 def Interface():
 
     master = Tk()
-    Label(master, text="Clique enviar para enviar seu arquivo").grid(row=0)
+    Label(master, text="Mensagem").grid(row=0)
     # e1 = Entry(master)
     Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
     img = filedialog.askopenfilename(initialdir = "../img",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
     # e1.grid(row=0, column=1)
     print(type(img))
-    Button(master, text='Enviar', command=lambda : main(img)).grid(row=3, column=0, sticky=W, pady=4)
-    Button(master, text='Quit', command=master.quit).grid(row=3, column=1, sticky=W, pady=4)
+    Button(master, text='Enviar', command=lambda : main(img)).grid(row=4, column=0, sticky=W, pady=4)
+    # Button(master, text='Quit', command=master.quit).grid(row=3, column=1, sticky=W, pady=4)
 
 
 
     mainloop()
-
-
 
 def main(img):
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
@@ -76,7 +74,6 @@ def main(img):
 
     # Transmite dado
     print("Transmitindo {} bytes".format(txLen))
-
     com.sendData(txBuffer)
 
     # Atualiza dados da transmissão
@@ -85,7 +82,7 @@ def main(img):
 
     # Encerra comunicação
     time.sleep(1.5+tempo*1.4)
-
+    
     print("-------------------------")
     print("Comunicação encerrada")
     print("-------------------------")
