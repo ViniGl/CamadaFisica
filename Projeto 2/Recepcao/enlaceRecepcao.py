@@ -53,5 +53,5 @@ class enlace(object):
         """
         print('Entrou na leitura e tentara ler ' + str(size) + ' bytes')
         data = self.rx.getNData(size)
-
+       
         return(data, len(data))

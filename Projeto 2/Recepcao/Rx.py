@@ -106,17 +106,11 @@ class RX(object):
         while self.getBufferLen()==0:
             print("Esperando ...")
 
-        datarate = self.fisica.baudrate*8/11
-        tempo = txLen*8/datarate
-
-        print("Tempo estimado para transmissao: {:.4f}".format(tempo))
 
         while not check:
             BufferRecebido = self.getBufferLen()
             print("recebido =" + str(BufferRecebido))
             if BufferRecebido == tmp:
-                start_time = time.time()
-
                 check = True
             else:
                 tmp = BufferRecebido
@@ -124,10 +118,9 @@ class RX(object):
         #
         # while(self.getBufferLen() < size):
         #     time.sleep(0.05)
-
+        
 
         print("Arquivo capturado com sucesso!")
-        print("%s segundos" % (time.time() - start_time))
         return(self.getBuffer(),tmp)
 
 
