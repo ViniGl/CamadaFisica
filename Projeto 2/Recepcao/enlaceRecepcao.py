@@ -14,7 +14,7 @@ import time
 #from construct import *
 
 # Interface Física
-from fisicaResepcao import fisica
+from fisicaRecepcao import fisica
 
 # enlace Tx e Rx
 from Rx import RX
@@ -53,5 +53,5 @@ class enlace(object):
         """
         print('Entrou na leitura e tentara ler ' + str(size) + ' bytes')
         data = self.rx.getNData(size)
-       
+
         return(data, len(data))
