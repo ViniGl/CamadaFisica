@@ -21,7 +21,7 @@ import time
 
 #serialName = "/dev/ttyACM0"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM6"                  # Windows(variacao de)
+serialName = "COM8"                  # Windows(variacao de)
 
 def main():
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
@@ -43,29 +43,7 @@ def main():
   
     ListTxBuffer =list()
 
-    #arquivo = GUI.e1
-
-    """
-    with open('../img/gatinho.jpg', 'rb') as imagem:
-    	f = imagem.read()
-
-    txBuffer = bytes(f)
-    txLen = len(txBuffer)
-
-    print("Total de bytes: {}".format(txLen))
-
-    datarate = com.fisica.baudrate*8/11
-    tempo = txLen*8/datarate
-    print("Tempo estimado para transmissao: {:.4f}".format(tempo))
-
-    # Atualiza dados da transmissão
-    #com.tx.getStatus()
-
-    # Transmite dado
-    start_time = time.time()
-    com.sendData(txBuffer)
-    """
-    with open('../img/a.png', 'rb') as imagem:
+    with open('../img/gato.jpg', 'rb') as imagem:
         f = imagem.read()
 
     txBuffer = bytes(f)
@@ -86,13 +64,11 @@ def main():
     
 
     # Encerra comunicação
+    time.sleep(1.5+tempo*1.4)
     print("-------------------------")
     print("Comunicação encerrada")
     print("-------------------------")
     com.disable()
-
-    input("\nPressione enter para sair")
-    exit()
 
     #so roda o main quando for executado do terminal ... se for chamado dentro de outro modulo nao roda
 if __name__ == "__main__":

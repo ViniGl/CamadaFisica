@@ -12,6 +12,8 @@ import serial
 # importa pacote para conversão binário ascii
 import binascii
 
+import time
+
 #################################
 # Interface com a camada física #
 #################################
