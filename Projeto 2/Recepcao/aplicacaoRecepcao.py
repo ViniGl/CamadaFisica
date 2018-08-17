@@ -50,7 +50,7 @@ def main():
     #print (rxBuffer)
 
     f2 = open('ArquivoRecebido.jpg', 'wb')
-    f2.write(bytes(rxBuffer))
+    f2.write(rxBuffer)
     f2.close()
 
     # D = fisica.baudrate

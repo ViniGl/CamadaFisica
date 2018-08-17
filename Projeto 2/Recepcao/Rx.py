@@ -84,13 +84,15 @@ class RX(object):
         self.threadResume()
         return(b)
 
-    def getBuffer(self, nData):
+    def getBuffer(self):
         """ Remove n data from buffer
         """
         self.threadPause()
-        b           = self.buffer[0:nData]
-        self.buffer = self.buffer[nData:]
+        # print(self.buffer)
+        b           = self.buffer
+        # self.buffer = self.buffer[nData:]
         self.threadResume()
+        self.clearBuffer()
         return(b)
 
     def getNData(self):
@@ -100,25 +102,26 @@ class RX(object):
         """
 
         check = False
-        tmp= "nan"
+        tmp = "nan"
         while self.getBufferLen()==0:
-            print("buffer = {}".format(self.getBufferLen()))
+            print("Esperando ...")
 
 
         while not check:
             BufferRecebido = self.getBufferLen()
             print("recebido =" + str(BufferRecebido))
-            time.sleep(2)
             if BufferRecebido == tmp:
                 check = True
             else:
                 tmp = BufferRecebido
+            time.sleep(1.3)
         #
         # while(self.getBufferLen() < size):
         #     time.sleep(0.05)
-        print("passou")
-        self.clearBuffer()
-        return(BufferRecebido)
+        
+
+        print("Arquivo capturado com sucesso!")
+        return(self.getBuffer(),tmp)
 
 
     def clearBuffer(self):
