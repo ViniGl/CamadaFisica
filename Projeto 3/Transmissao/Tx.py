@@ -9,6 +9,7 @@
 
 # Importa pacote de tempo
 import time
+import bitstring
 
 # Threads
 import threading
@@ -28,6 +29,9 @@ class TX(object):
         self.empty       = True
         self.threadMutex = False
         self.threadStop  = False
+        self.head_size = 16
+        self.eop = 11184810 #101010101010101010101010
+        self.eop_size = 3
 
 
     def thread(self):
@@ -70,9 +74,26 @@ class TX(object):
         of transmission, this erase all content of the buffer
         in order to save the new value.
         """
-        self.transLen   = 0
+        self.transLen  = 0
+        
         self.buffer = data
+
+        ldata = list(data)
+        
+        l = self.getBufferLen()
+        lb = "{0:b}".format(l)
+        lb = int(lb)
+        h = lb.to_bytes(self.head_size, "big")
+
+        e = self.eop.to_bytes(self.eop_size, "big")
+
+        #print(ldata)
+        #print(list(e))
+        
+        self.buffer = h + data + e
+
         self.threadMutex  = True
+
         print("Buffer enviado")
 
     def getBufferLen(self):
@@ -92,3 +113,14 @@ class TX(object):
         """
         return(self.threadMutex)
 
+    def contains(small, big):
+        l_small = len(small)
+        l_big = len(big)
+        i = 0
+        c = []
+
+        while i < len(big)-1:
+            if big[i] == small[0] and big[i+1] == small[1] and big[i+2] == small[2]:
+                c.append([i,i+1])
+            i += 1
+    return c
