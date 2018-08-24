@@ -70,6 +70,7 @@ class TX(object):
         of transmission, this erase all content of the buffer
         in order to save the new value.
         """
+        
         self.transLen   = 0
         self.buffer = data
         self.threadMutex  = True
@@ -85,10 +86,9 @@ class TX(object):
         """
         #print("O tamanho transmitido. Impressao fora do thread {}" .format(self.transLen))
         return(self.transLen)
-        
+
 
     def getIsBussy(self):
         """ Return true if a transmission is ongoing
         """
         return(self.threadMutex)
-

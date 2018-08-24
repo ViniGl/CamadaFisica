@@ -21,9 +21,9 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-#serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
+serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM8"                  # Windows(variacao de)
+# serialName = "COM8"                  # Windows(variacao de)
 
 def Interface():
 
@@ -74,7 +74,7 @@ def main(img):
 
     # Transmite dado
     print("Transmitindo {} bytes".format(txLen))
-    com.sendData(txBuffer)
+    com.sendData(header,txBuffer,eop)
 
     # Atualiza dados da transmissão
     com.tx.getStatus()
@@ -82,7 +82,7 @@ def main(img):
 
     # Encerra comunicação
     time.sleep(1.5+tempo*1.4)
-    
+
     print("-------------------------")
     print("Comunicação encerrada")
     print("-------------------------")
