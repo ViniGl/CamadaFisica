@@ -10,6 +10,7 @@
 # Importa pacote de tempo
 import time
 import bitstring
+import numpy as np
 
 # Threads
 import threading
@@ -32,6 +33,7 @@ class TX(object):
         self.head_size = 16
         self.eop = 11184810 #101010101010101010101010
         self.eop_size = 3
+        self.stuff = 0
 
 
     def thread(self):
@@ -40,7 +42,7 @@ class TX(object):
         while not self.threadStop:
             if(self.threadMutex):
                 self.transLen = self.fisica.write(self.buffer)
-                print("O tamanho transmitido. Impressao dentro do thread {}" .format(self.transLen))
+                print("O tamanho total transmitido: {:.0f} bytes" .format(self.transLen))
                 self.threadMutex = False
 
     def threadStart(self):
@@ -75,22 +77,64 @@ class TX(object):
         in order to save the new value.
         """
         self.transLen  = 0
-        
+
+        #data para teste Byte stuffing
+        #data = 733007751850 #101010101010101010101010101010101010101010101010
+        #data = data.to_bytes(6, "big")
+
+        data = bytearray(data)
         self.buffer = data
+        print(data)
 
         ldata = list(data)
-        
+
+        e = self.eop.to_bytes(self.eop_size, "big")
+        le = list(e)
+
+
+        #Byte stuffing
+        ###data = stuffing(data)
+        '''
+        c = self.contains(le,ldata)
+        if c != []:
+            tc = []
+            for lc in c:
+                tc += lc
+            tc.append(max(tc)+1)
+            tc = sorted(np.unique(tc))
+            print(tc)
+            f = -1
+            a = 0
+            for n in tc:
+                print(n, a)
+                a = n+f
+                data.insert(a, self.stuff)
+                f += 1
+            data.insert(a+f+1, self.stuff)
+            
+            b = 0
+            for i in self.contains(le,ldata):
+                f = 1
+                a = 0
+                for j in i:
+                    a = j+b
+                    data.insert(j+f+b, self.stuff)
+                    f += 1
+                data.insert(a+f+1, self.stuff)
+                b += f
+            '''
+
         l = self.getBufferLen()
         lb = "{0:b}".format(l)
         lb = int(lb)
         h = lb.to_bytes(self.head_size, "big")
-
-        e = self.eop.to_bytes(self.eop_size, "big")
-
-        #print(ldata)
-        #print(list(e))
         
+        data = bytes(data)
+        print(data)
         self.buffer = h + data + e
+        print(self.buffer)
+
+        print("Through Put: {:.2f}".format(self.getBufferLen()*8/(self.fisica.baudrate*8/11)))
 
         self.threadMutex  = True
 
@@ -113,14 +157,38 @@ class TX(object):
         """
         return(self.threadMutex)
 
-    def contains(small, big):
+    def contains(self, small, big):
         l_small = len(small)
         l_big = len(big)
         i = 0
         c = []
 
-        while i < len(big)-1:
+        while i < len(big)-2:
             if big[i] == small[0] and big[i+1] == small[1] and big[i+2] == small[2]:
                 c.append([i,i+1])
             i += 1
-    return c
+        return c
+
+    def stuffing (lista):
+        while i < len(lista):
+            check = lista[i]
+            target = 170
+            target = target.to_bytes(1,'big')
+            stuff = 0
+            stuff = stuff.to_bytes(1,'big')
+
+            if check == target:
+                try:
+                    t1 = lista[i+1]
+                    t2 = lista[i+2]
+                    if t1 == target and t2 == target:
+                        lista.insert(i+1,stuff)
+                        lista.insert(i+3,stuff)
+                except:
+                    pass
+
+            i += 1
+        if lista[-1] == target:
+            lista.append(stuff)
+
+        return lista
