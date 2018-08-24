@@ -87,13 +87,47 @@ class RX(object):
     def getBuffer(self):
         """ Remove n data from buffer
         """
+
+
+
+        def contains( small, big):
+            l_small = len(small)
+            l_big = len(big)
+            i = 0
+            c = []
+
+            while i < len(big)-2:
+                if big[i] == small[0] and big[i+1] == small[1] and big[i+2] == small[2]:
+                    c.append([i,i+1,i+2])
+                i += 1
+
+            return c
+
         self.threadPause()
         # print(self.buffer)
         b           = self.buffer
-        # self.buffer = self.buffer[nData:]
-        self.threadResume()
-        self.clearBuffer()
-        return(b)
+        data = list(b)
+        a = 11184810
+        eop = list(a.to_bytes(3,'big'))
+
+        c = contains(eop,data)
+        if c != []:
+            header = b[0:16]
+            size = int(str(int.from_bytes(header,byteorder='big')),2)
+            payload = b[c[0][0]-size: size + 16]
+            eop = b[c[0][0]:]
+            overhead = (len(header)+len(payload)+len(eop))/len(payload)
+
+            print("Overhead = {:.2f}".format(overhead))
+            print("EOP na posicao" +" "+ str(c[0][0]))
+            # self.buffer = self.buffer[nData:]
+            self.threadResume()
+            self.clearBuffer()
+            return(payload)
+        else:
+            self.clearBuffer()
+            print("EOP nao encontrado")
+            return ""
 
     def getNData(self):
         """ Read N bytes of data from the reception buffer
@@ -118,7 +152,7 @@ class RX(object):
         #
         # while(self.getBufferLen() < size):
         #     time.sleep(0.05)
-        
+
 
         print("Arquivo capturado com sucesso!")
         return(self.getBuffer(),tmp)

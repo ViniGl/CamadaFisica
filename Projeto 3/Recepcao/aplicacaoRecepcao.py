@@ -18,9 +18,9 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-#serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
+serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM8"                  # Windows(variacao de)
+# serialName = "COM8"                  # Windows(variacao de)
 
 
 
@@ -47,11 +47,13 @@ def main():
     # log
     print ("Lido {} bytes".format(nRx))
 
-    #print (rxBuffer)
+    if rxBuffer == "":
+        print("Falha no envio!")
 
-    f2 = open('ArquivoRecebido.jpg', 'wb')
-    f2.write(rxBuffer)
-    f2.close()
+    else:
+        f2 = open('ArquivoRecebido.jpg', 'wb')
+        f2.write(rxBuffer)
+        f2.close()
 
     # D = fisica.baudrate
     # n = 8

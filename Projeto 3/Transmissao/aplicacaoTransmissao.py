@@ -25,6 +25,7 @@ import time
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 serialName = "COM10"                  # Windows(variacao de)
 
+
 def Interface():
 
     master = Tk()
@@ -73,16 +74,16 @@ def main(img):
 
 
     # Transmite dado
-    print("Tamanho do arquivo: {} bytes".format(txLen))
-    com.sendData(txBuffer)
+    print("Transmitindo {} bytes".format(txLen))
+    com.sendData(header,txBuffer,eop)
 
     # Atualiza dados da transmissão
     com.tx.getStatus()
 
 
     # Encerra comunicação
-    #time.sleep(1.5+tempo*1.4)
-    
+    time.sleep(1.5+tempo*1.4)
+
     print("-------------------------")
     print("Comunicação encerrada")
     print("-------------------------")

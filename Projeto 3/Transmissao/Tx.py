@@ -137,7 +137,6 @@ class TX(object):
         print("Through Put: {:.2f}".format(self.getBufferLen()*8/(self.fisica.baudrate*8/11)))
 
         self.threadMutex  = True
-
         print("Buffer enviado")
 
     def getBufferLen(self):
@@ -150,7 +149,7 @@ class TX(object):
         """
         #print("O tamanho transmitido. Impressao fora do thread {}" .format(self.transLen))
         return(self.transLen)
-        
+
 
     def getIsBussy(self):
         """ Return true if a transmission is ongoing
