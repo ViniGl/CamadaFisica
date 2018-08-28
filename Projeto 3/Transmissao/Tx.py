@@ -87,51 +87,19 @@ class TX(object):
         self.buffer = data
         print(data)
 
-        
-        #ldata = list(data)
-
-        e = self.eop.to_bytes(self.eop_size, "big")
-        #le = list(e)
-        
-
+        e = self.eop.to_bytes(self.eop_size, "big")    
 
         #Byte stuffing
         data = self.stuffing(data)
-
-        '''
-        c = self.contains(le,ldata)
-        if c != []:
-            tc = []
-            for lc in c:
-                tc += lc
-            tc.append(max(tc)+1)
-            tc = sorted(np.unique(tc))
-            print(tc)
-            f = -1
-            a = 0
-            for n in tc:
-                print(n, a)
-                a = n+f
-                data.insert(a, self.stuff)
-                f += 1
-            data.insert(a+f+1, self.stuff)
-            
-            b = 0
-            for i in self.contains(le,ldata):
-                f = 1
-                a = 0
-                for j in i:
-                    a = j+b
-                    data.insert(j+f+b, self.stuff)
-                    f += 1
-                data.insert(a+f+1, self.stuff)
-                b += f
-            '''
 
         l = self.getBufferLen()
         lb = "{0:b}".format(l)
         lb = int(lb)
         h = lb.to_bytes(self.head_size, "big")
+
+        #data para teste Head size
+        #data = 11042562902796 #0a0b0c0a0b0c
+        #data = data.to_bytes(6, "big")
         
         data = bytes(data)
         print(data)
