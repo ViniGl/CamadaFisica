@@ -94,28 +94,34 @@ class RX(object):
         data = bytearray(b)
         a = 658188
         eop = bytearray(a.to_bytes(3,'big'))
-        byte_stuffing = 42950393868
-        byte_stuffing = bytearray(byte_stuffing.to_bytes(6, 'big'))
+        byte_stuffing = bytearray(b'\n\x00\x0b\x00\x0c\x00')
+        # byte_stuffing = bytearray(byte_stuffing.to_bytes(6, 'big'))
 
         header = b[0:16]
-        size = int(str(int.from_bytes(header,byteorder='big')),2)
+        try:
+            size = int(str(int.from_bytes(header,byteorder='big')),2)
+            print(data)
+            print(eop)
+            print(byte_stuffing)
+            eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
+            print(data)
+            if eop_pos == 0:
+                self.clearBuffer()
+                print("Erro: EOP não encontrado")
+                return
 
-        eop_pos, data = self.eop_e_desstuffing(data)
+            payload = b[eop_pos-size: eop_pos]
+        except:
+            print('Falha no envio')
+            return ""
 
-        if eop_pos == 0:
-            self.clearBuffer()
-            print("Erro: EOP não encontrado")
-            return
-
-        payload = b[eop_pos-size: eop_pos]
-
-        if int(str(int.from_bytes(payload,byteorder='big')),2) != size:
+        if len(payload) != size:
             self.clearBuffer()
             print("Erro: Tamanho do payload não igual ao informado no Head")
-            return
+            return ""
 
         eop = b[eop_pos:]
-        
+
         overhead = (len(header)+len(payload)+len(eop))/len(payload)
 
         print("Overhead: {:.3f}".format(overhead))
@@ -161,11 +167,11 @@ class RX(object):
         """
         self.buffer = b""
 
-    def eop_e_desstuffing(self, lista):
+    def eop_e_desstuffing(self, lista,eop,byte_stuffing):
         queue = bytearray()
         eop_pos = 0
         for i in range(len(lista)):
-            print(lista[i])
+            # print(lista[i])
             queue.append(lista[i])
             if len(queue) >= 3:
                 if queue[-3:] == eop:
