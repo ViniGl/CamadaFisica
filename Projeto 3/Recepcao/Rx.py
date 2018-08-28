@@ -88,46 +88,44 @@ class RX(object):
         """ Remove n data from buffer
         """
 
-
-
-        def contains( small, big):
-            l_small = len(small)
-            l_big = len(big)
-            i = 0
-            c = []
-
-            while i < len(big)-2:
-                if big[i] == small[0] and big[i+1] == small[1] and big[i+2] == small[2]:
-                    c.append([i,i+1,i+2])
-                i += 1
-
-            return c
-
         self.threadPause()
         # print(self.buffer)
         b           = self.buffer
-        data = list(b)
-        a = 11184810
-        eop = list(a.to_bytes(3,'big'))
+        data = bytearray(b)
+        a = 658188
+        eop = bytearray(a.to_bytes(3,'big'))
+        byte_stuffing = 42950393868
+        byte_stuffing = bytearray(byte_stuffing.to_bytes(6, 'big'))
 
-        c = contains(eop,data)
-        if c != []:
-            header = b[0:16]
-            size = int(str(int.from_bytes(header,byteorder='big')),2)
-            payload = b[c[0][0]-size: size + 16]
-            eop = b[c[0][0]:]
-            overhead = (len(header)+len(payload)+len(eop))/len(payload)
+        header = b[0:16]
+        size = int(str(int.from_bytes(header,byteorder='big')),2)
 
-            print("Overhead = {:.2f}".format(overhead))
-            print("EOP na posicao" +" "+ str(c[0][0]))
-            # self.buffer = self.buffer[nData:]
-            self.threadResume()
+        eop_pos, data = self.eop_e_desstuffing(data)
+
+        if eop_pos == 0:
             self.clearBuffer()
-            return(payload)
-        else:
+            print("Erro: EOP não encontrado")
+            return
+
+        payload = b[eop_pos-size: eop_pos]
+
+        if int(str(int.from_bytes(payload,byteorder='big')),2) != size:
             self.clearBuffer()
-            print("EOP nao encontrado")
-            return ""
+            print("Erro: Tamanho do payload não igual ao informado no Head")
+            return
+
+        eop = b[eop_pos:]
+        
+        overhead = (len(header)+len(payload)+len(eop))/len(payload)
+
+        print("Overhead: {:.3f}".format(overhead))
+        print("EOP na posição " + str(eop_pos))
+        # self.buffer = self.buffer[nData:]
+        self.threadResume()
+        self.clearBuffer()
+
+        return(payload)
+
 
     def getNData(self):
         """ Read N bytes of data from the reception buffer
@@ -139,11 +137,11 @@ class RX(object):
         tmp = "nan"
         while self.getBufferLen()==0:
             print("Esperando ...")
-
+            time.sleep(1.3)
 
         while not check:
             BufferRecebido = self.getBufferLen()
-            print("recebido =" + str(BufferRecebido))
+            print("Recebido: {} bytes".format(str(BufferRecebido)))
             if BufferRecebido == tmp:
                 check = True
             else:
@@ -154,7 +152,7 @@ class RX(object):
         #     time.sleep(0.05)
 
 
-        print("Arquivo capturado com sucesso!")
+        print("Fim da recepção")
         return(self.getBuffer(),tmp)
 
 
@@ -162,3 +160,20 @@ class RX(object):
         """ Clear the reception buffer
         """
         self.buffer = b""
+
+    def eop_e_desstuffing(self, lista):
+        queue = bytearray()
+        eop_pos = 0
+        for i in range(len(lista)):
+            print(lista[i])
+            queue.append(lista[i])
+            if len(queue) >= 3:
+                if queue[-3:] == eop:
+                    eop_pos = i-2
+            if len(queue) >= 6:
+                if queue[-6:] == byte_stuffing:
+                    del(queue[-5])
+                    del(queue[-3])
+                    del(queue[-1])
+            i += 1
+        return eop_pos, queue

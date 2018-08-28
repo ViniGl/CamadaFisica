@@ -31,7 +31,7 @@ class TX(object):
         self.threadMutex = False
         self.threadStop  = False
         self.head_size = 16
-        self.eop = 11184810 #101010101010101010101010
+        self.eop = 658188 #0a0b0c
         self.eop_size = 3
         self.stuff = 0
 
@@ -43,6 +43,7 @@ class TX(object):
             if(self.threadMutex):
                 self.transLen = self.fisica.write(self.buffer)
                 print("O tamanho total transmitido: {:.0f} bytes" .format(self.transLen))
+                print("Through Put: {:.3f} bytes por segundo".format(self.getBufferLen()/self.fisica.tempo))
                 self.threadMutex = False
 
     def threadStart(self):
@@ -79,21 +80,24 @@ class TX(object):
         self.transLen  = 0
 
         #data para teste Byte stuffing
-        #data = 733007751850 #101010101010101010101010101010101010101010101010
+        #data = 11042562902796 #0a0b0c0a0b0c
         #data = data.to_bytes(6, "big")
 
         data = bytearray(data)
         self.buffer = data
         print(data)
 
-        ldata = list(data)
+        
+        #ldata = list(data)
 
         e = self.eop.to_bytes(self.eop_size, "big")
-        le = list(e)
+        #le = list(e)
+        
 
 
         #Byte stuffing
-        ###data = stuffing(data)
+        data = self.stuffing(data)
+
         '''
         c = self.contains(le,ldata)
         if c != []:
@@ -134,8 +138,6 @@ class TX(object):
         self.buffer = h + data + e
         print(self.buffer)
 
-        print("Through Put: {:.2f}".format(self.getBufferLen()*8/(self.fisica.baudrate*8/11)))
-
         self.threadMutex  = True
         print("Buffer enviado")
 
@@ -168,26 +170,25 @@ class TX(object):
             i += 1
         return c
 
-    def stuffing (lista):
+    def stuffing(self, lista):
+        ltarget = [10, 11, 12] #0a0b0c
+        i=0
         while i < len(lista):
             check = lista[i]
-            target = 170
-            target = target.to_bytes(1,'big')
+            target = ltarget[0]
             stuff = 0
-            stuff = stuff.to_bytes(1,'big')
 
             if check == target:
                 try:
                     t1 = lista[i+1]
                     t2 = lista[i+2]
-                    if t1 == target and t2 == target:
+                    if t1 == ltarget[1] and t2 == ltarget[2]:
                         lista.insert(i+1,stuff)
                         lista.insert(i+3,stuff)
+                        lista.insert(i+5,stuff)
                 except:
                     pass
 
             i += 1
-        if lista[-1] == target:
-            lista.append(stuff)
 
         return lista

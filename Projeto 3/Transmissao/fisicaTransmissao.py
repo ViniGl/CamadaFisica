@@ -29,6 +29,7 @@ class fisica(object):
         self.parity      = serial.PARITY_NONE
         self.stop        = serial.STOPBITS_ONE
         self.timeout     = 0.1
+        self.tempo = 0
 
     def open(self):
         """ Opens serial port and configure it
@@ -72,5 +73,6 @@ class fisica(object):
         start_time = time.time()
         nTx = self.port.write(self.encode(txBuffer))
         self.port.flush()
-        print("Tempo total de transmissão: {:.2f} milisegundos".format((time.time()-start_time)*1000))
+        self.tempo = (time.time()-start_time)*1000
+        print("Tempo total de transmissão: {:.2f} milisegundos".format(self.tempo))
         return(nTx/2)
