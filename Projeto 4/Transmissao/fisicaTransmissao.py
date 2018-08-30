@@ -29,6 +29,7 @@ class fisica(object):
         self.parity      = serial.PARITY_NONE
         self.stop        = serial.STOPBITS_ONE
         self.timeout     = 0.1
+        self.rxRemain    = b""
         self.tempo = 0
 
     def open(self):
@@ -58,6 +59,12 @@ class fisica(object):
         encoded = binascii.hexlify(data)
         return(encoded)
 
+    def decode(self, data):
+        """ Decode RX ASCII data after reception
+        """
+        decoded = binascii.unhexlify(data)
+        return(decoded)
+
     def write(self, txBuffer):
         """ Write data to serial port
 
@@ -69,10 +76,39 @@ class fisica(object):
         """
         datarate = self.baudrate*8/11
         tempo = (len(txBuffer))*8/datarate
+        print("-------------------------")
         print("Tempo estimado para transmissão: {:.2f} milisegundos".format(tempo*1000))
         start_time = time.time()
         nTx = self.port.write(self.encode(txBuffer))
         self.port.flush()
         self.tempo = (time.time()-start_time)*1000
+        time.sleep(0.1)
         print("Tempo total de transmissão: {:.2f} milisegundos".format(self.tempo))
+        print("-------------------------")
         return(nTx/2)
+
+    def read(self, nBytes):
+        """ Read nBytes from the UART com port
+
+        Nem toda a leitura retorna múltiplo de 2
+        devemos verificar isso para evitar que a funcao
+        self.decode seja chamada com números ímpares.
+        """
+        rxBuffer = self.port.read(nBytes)
+
+        rxBufferConcat = self.rxRemain + rxBuffer
+        nValid = (len(rxBufferConcat)//2)*2
+        rxBufferValid = rxBufferConcat[0:nValid]
+        self.rxRemain = rxBufferConcat[nValid:]
+        try :
+
+            """ As vezes acontece erros na decodificacao
+            fora do ambiente linux, isso tenta corrigir
+            em parte esses erros. Melhorar futuramente."""
+            
+            rxBufferDecoded = self.decode(rxBufferValid)
+            nRx = len(rxBuffer)
+            return(rxBufferDecoded, nRx)
+        except :
+            print("[ERRO] interfaceFisica, read, decode. buffer : {}".format(rxBufferValid))
+            return(b"", 0)

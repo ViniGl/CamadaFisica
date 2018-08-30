@@ -34,9 +34,8 @@ def Interface():
     Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
     img = filedialog.askopenfilename(initialdir = "../img",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
     # e1.grid(row=0, column=1)
-    print(type(img))
     Button(master, text='Enviar', command=lambda : main(img)).grid(row=4, column=0, sticky=W, pady=4)
-    # Button(master, text='Quit', command=master.quit).grid(row=3, column=1, sticky=W, pady=4)
+    Button(master, text='Quit', command=master.quit).grid(row=4, column=1, sticky=W, pady=4)
 
 
 
@@ -45,6 +44,7 @@ def Interface():
 def main(img):
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
     com = enlace(serialName)
+    rx = com.rx
 
     # Ativa comunicacao
     com.enable()
@@ -54,14 +54,35 @@ def main(img):
     print("Comunicação Aberta")
     print("-------------------------")
 
+    flag1 = True
+    while flag1:
+        #Synch 1 (Mensagem tipo 1)
+        print("Enviando mensagem tipo 1")
+        data = (0).to_bytes(1, "big")
+        com.sendData(data,1) #tipo 1
 
+        print("Esperando mensagem tipo 2")
+        #Synch 2 (Mensagem tipo 2)
+        buffer_tuple, nRx = rx.getNData()
+        rxbuffer, tipo = buffer_tuple
+        time.sleep(0.3)
+        if tipo == 1:
+            flag1 = False
+        else:
+            print("Mensagem tipo 2 não recebida")
+            print("-------------------------")
+            time.sleep(1)
+
+
+
+    #Transmissao de dados (Mensagem tipo 4)
     # a seguir ha um exemplo de dados sendo carregado para transmissao
     # voce pode criar o seu carregando os dados de uma imagem. Tente descobrir
     #como fazer isso
+    '''
     print ("Gerando dados para transmissao")
 
     ListTxBuffer =list()
-
 
     with open(img, 'rb') as imagem:
     	f = imagem.read()
@@ -97,10 +118,10 @@ def main(img):
         f2 = open('ArquivoRecebido.jpg', 'wb')
         f2.write(rxBuffer)
         f2.close()
-
+    '''
 
     # Encerra comunicação
-    time.sleep(1.5+tempo*1.4)
+    #time.sleep(1.5+tempo*1.4)
 
     print("-------------------------")
     print("Comunicação encerrada")

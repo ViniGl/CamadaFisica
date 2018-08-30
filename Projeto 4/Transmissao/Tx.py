@@ -30,7 +30,7 @@ class TX(object):
         self.empty       = True
         self.threadMutex = False
         self.threadStop  = False
-        self.head_size = 16
+        self.head_payload = 8
         self.eop = 658188 #0a0b0c
         self.eop_size = 3
         self.stuff = 0
@@ -43,7 +43,12 @@ class TX(object):
             if(self.threadMutex):
                 self.transLen = self.fisica.write(self.buffer)
                 print("O tamanho total transmitido: {:.0f} bytes" .format(self.transLen))
-                print("Through Put: {:.3f} bytes por segundo".format(self.getBufferLen()/self.fisica.tempo))
+                time.sleep(1.5)
+                try:
+                    print("Through Put: {:.3f} bytes por segundo".format(self.getBufferLen()/self.fisica.tempo))
+                except:
+                    print("Through Put: Tempo muito baixo para calcular through put!")
+                
                 self.threadMutex = False
 
     def threadStart(self):
@@ -69,7 +74,7 @@ class TX(object):
         """
         self.threadMutex = True
 
-    def sendBuffer(self, data):
+    def sendBuffer(self, data, tipo):
         """ Write a new data to the transmission buffer.
             This function is non blocked.
 
@@ -77,6 +82,23 @@ class TX(object):
         of transmission, this erase all content of the buffer
         in order to save the new value.
         """
+
+        if tipo == 1:
+            tipo = (1).to_bytes(1,"big")
+        elif tipo == 2:
+            tipo = (2).to_bytes(1,"big")
+        elif tipo == 3:
+            tipo = (3).to_bytes(1,"big")
+        elif tipo == 4:
+            tipo = (4).to_bytes(1,"big")
+        elif tipo == 5:
+            tipo = (5).to_bytes(1,"big")
+        elif tipo == 6:
+            tipo = (6).to_bytes(1,"big")
+        elif tipo == 7:
+            tipo = (7).to_bytes(1,"big")
+            
+
         self.transLen  = 0
 
         #data para teste Byte stuffing
@@ -85,7 +107,11 @@ class TX(object):
 
         data = bytearray(data)
         self.buffer = data
-        print(data)
+        #print(data)
+
+        ini = (0).to_bytes(2,"big") #Dois primeiros bytes do head
+
+        resto = (0).to_bytes(5,"big") #Bytes 4 a 8 do head
 
         e = self.eop.to_bytes(self.eop_size, "big")
 
@@ -95,16 +121,16 @@ class TX(object):
         l = self.getBufferLen()
         lb = "{0:b}".format(l)
         lb = int(lb)
-        h = lb.to_bytes(self.head_size, "big")
+        ps = lb.to_bytes(self.head_payload, "big")
 
         #data para teste Head size
         #data = 11042562902796 #0a0b0c0a0b0c
         #data = data.to_bytes(6, "big")
 
         data = bytes(data)
-        print(data)
-        self.buffer = h + data + e
-        print(self.buffer)
+        #print(data)
+        self.buffer = ini + tipo + resto + ps + data + e
+        #print(self.buffer)
 
         self.threadMutex  = True
         print("Buffer enviado")
