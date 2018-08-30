@@ -98,39 +98,60 @@ class RX(object):
         # byte_stuffing = bytearray(byte_stuffing.to_bytes(6, 'big'))
 
         header = b[0:16]
-        try:
-            size = int(str(int.from_bytes(header,byteorder='big')),2)
-            print(data)
-            print(eop)
-            print(byte_stuffing)
-            eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
-            print(data)
-            if eop_pos == 0:
-                self.clearBuffer()
-                print("Erro: EOP não encontrado")
+        typeChecked = self.checkDataReceived(header)
+        if typeChecked == 4:
+            try:
+                size = int(str(int.from_bytes(header,byteorder='big')),2)
+                print(data)
+                print(eop)
+                print(byte_stuffing)
+                eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
+                print(data)
+                if eop_pos == 0:
+                    self.clearBuffer()
+                    print("Erro: EOP não encontrado")
+                    return ""
+
+                payload = b[eop_pos-size: eop_pos]
+            except:
+                print('Falha no envio')
                 return ""
 
-            payload = b[eop_pos-size: eop_pos]
-        except:
-            print('Falha no envio')
-            return ""
+            if len(payload) != size:
+                self.clearBuffer()
+                print("Erro: Tamanho do payload não igual ao informado no Head")
+                return ""
 
-        if len(payload) != size:
+            eop = b[eop_pos:]
+
+            overhead = (len(header)+len(payload)+len(eop))/len(payload)
+
+            print("Overhead: {:.3f}".format(overhead))
+            print("EOP na posição " + str(eop_pos))
+            # self.buffer = self.buffer[nData:]
+            self.threadResume()
             self.clearBuffer()
-            print("Erro: Tamanho do payload não igual ao informado no Head")
-            return ""
 
-        eop = b[eop_pos:]
+            return(payload)
 
-        overhead = (len(header)+len(payload)+len(eop))/len(payload)
+        else:
+            return typeChecked
 
-        print("Overhead: {:.3f}".format(overhead))
-        print("EOP na posição " + str(eop_pos))
-        # self.buffer = self.buffer[nData:]
-        self.threadResume()
-        self.clearBuffer()
 
-        return(payload)
+    def checkDataReceived(self,header):
+        type = int(str(int.from_bytes(header[2],byteorder='big')),2)
+        if type == 1:
+            return 1
+        elif type == 2:
+            return 2
+        elif type == 3:
+            return 3
+        elif type == 4:
+            return 4
+        elif type == 5:
+            return 5
+        elif type == 6:
+            return 6
 
 
     def getNData(self):

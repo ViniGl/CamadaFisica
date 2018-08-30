@@ -9,6 +9,7 @@
 ####################################################
 
 from enlaceTransmissao import *
+from enlaceRecepcao import *
 from tkinter import filedialog
 from tkinter import *
 #from GUI import GUI
@@ -21,90 +22,100 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-#serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
+serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM5"                  # Windows(variacao de)
+# serialName = "COM5"                  # Windows(variacao de)
+
+def checkDataType(data):
+    if type == 1:
+        return 1
+    elif type == 2:
+        return 2
+    elif type == 3:
+        return 3
+    elif type == 4:
+        return 4
+    elif type == 5:
+        return 5
+    elif type == 6:
+        return 6
+
+def SyncMaker(type):
+    noth = (0).to_bytes(2,"big")
+    noth2 = (0).to_bytes(13,"big")
+    payload =(0).to_bytes(1,"big")
+    eop = (658188).to_bytes(3,"big")
+    if type == 1:
+        t = (2).to_bytes(1,"big")
+        data = noth + t +noth2+ payload+ eop
+        return data
+    elif type == 3:
+        t = (4).to_bytes(1,"big")
+        data = noth + t +noth2+ payload+ eop
+        return data
+
+    elif type == 6:
+        t = (6).to_bytes(1,"big")
+        data = noth + t +noth2+ payload+ eop
 
 
-def Interface():
 
-    master = Tk()
-    Label(master, text="Mensagem").grid(row=0)
-    # e1 = Entry(master)
-    Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-    img = filedialog.askopenfilename(initialdir = "../img",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
-    # e1.grid(row=0, column=1)
-    print(type(img))
-    Button(master, text='Enviar', command=lambda : main(img)).grid(row=4, column=0, sticky=W, pady=4)
-    # Button(master, text='Quit', command=master.quit).grid(row=3, column=1, sticky=W, pady=4)
-
-
-
-    mainloop()
-
-def main(img):
+def main():
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
     com = enlace(serialName)
-
+    flag = False
+    rx = com.rx
+    tx = com.tx
     # Ativa comunicacao
     com.enable()
 
-    #verificar que a comunicação foi aberta
-    print("-------------------------")
-    print("Comunicação Aberta")
-    print("-------------------------")
+    while not flag:
+        #verificar que a comunicação foi aberta
+        print("-------------------------")
+        print("Comunicação Aberta")
+        print("-------------------------")
+
+        # a seguir ha um exemplo de dados sendo carregado para transmissao
+        # voce pode criar o seu carregando os dados de uma imagem. Tente descobrir
+        #como fazer isso
+
+        # Faz a recepção dos dados
+        print ("Recebendo dados .... ")
+
+        rxBuffer, nRx = rx.getNData()
 
 
-    # a seguir ha um exemplo de dados sendo carregado para transmissao
-    # voce pode criar o seu carregando os dados de uma imagem. Tente descobrir
-    #como fazer isso
-    print ("Gerando dados para transmissao")
+        # log
+        print ("Lido {} bytes".format(nRx))
 
-    ListTxBuffer =list()
+        type = checkDataType(rxBuffer)
 
 
-    with open(img, 'rb') as imagem:
-    	f = imagem.read()
+        if type != 4:
+            msg = SyncMaker(type)
+            tx.sendBuffer(msg)
 
-    txBuffer = bytes(f)
-    txLen    = len(txBuffer)
+        elif type == "":
+            msg = SyncMaker(6)
+            tx.sendBuffer(msg)
 
-    datarate = com.fisica.baudrate*8/11
-    tempo = txLen*8/datarate
-
-
-    # Transmite dado
-    print("Transmitindo {} bytes".format(txLen))
-    com.sendData(txBuffer)
-
-    # Atualiza dados da transmissão
-    com.tx.getStatus()
-
-    # Faz a recepção dos dados
-    print ("Recebendo dados .... ")
-
-    rxBuffer, nRx = rx.getNData()
+        else:
+            msg = SyncMaker(5)
+            tx.sendBuffer(msg)
+            f2 = open('ArquivoRecebido.jpg', 'wb')
+            f2.write(rxBuffer)
+            f2.close()
+            flag = True
 
 
+        # Encerra comunicação
+        time.sleep(1.5+tempo*1.4)
 
-    # log
-    print ("Lido {} bytes".format(nRx))
-
-    if rxBuffer == "":
-        print("Falha no envio!")
-
-    else:
-        f2 = open('ArquivoRecebido.jpg', 'wb')
-        f2.write(rxBuffer)
-        f2.close()
+        print("-------------------------")
+        print("Comunicação encerrada")
+        print("-------------------------")
 
 
-    # Encerra comunicação
-    time.sleep(1.5+tempo*1.4)
-
-    print("-------------------------")
-    print("Comunicação encerrada")
-    print("-------------------------")
     com.disable()
 
     #so roda o main quando for executado do terminal ... se for chamado dentro de outro modulo nao roda
