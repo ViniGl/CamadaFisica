@@ -8,7 +8,6 @@
 #  Aplicação
 ####################################################
 
-from enlaceTransmissao import *
 from enlaceRecepcao import *
 from tkinter import filedialog
 from tkinter import *
@@ -22,42 +21,9 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
+#serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-# serialName = "COM5"                  # Windows(variacao de)
-
-def checkDataType(data):
-    if type == 1:
-        return 1
-    elif type == 2:
-        return 2
-    elif type == 3:
-        return 3
-    elif type == 4:
-        return 4
-    elif type == 5:
-        return 5
-    elif type == 6:
-        return 6
-
-def SyncMaker(type):
-    noth = (0).to_bytes(2,"big")
-    noth2 = (0).to_bytes(13,"big")
-    payload =(0).to_bytes(1,"big")
-    eop = (658188).to_bytes(3,"big")
-    if type == 1:
-        t = (2).to_bytes(1,"big")
-        data = noth + t +noth2+ payload+ eop
-        return data
-    elif type == 3:
-        t = (4).to_bytes(1,"big")
-        data = noth + t +noth2+ payload+ eop
-        return data
-
-    elif type == 6:
-        t = (6).to_bytes(1,"big")
-        data = noth + t +noth2+ payload+ eop
-
+serialName = "COM9"                  # Windows(variacao de)
 
 
 def main():
@@ -78,7 +44,97 @@ def main():
         # a seguir ha um exemplo de dados sendo carregado para transmissao
         # voce pode criar o seu carregando os dados de uma imagem. Tente descobrir
         #como fazer isso
+        flag0 = True
+        while flag0:
+            buffer_tuple, nRx = rx.getNData()
+            rxbuffer, tipo = buffer_tuple
+            if tipo == 1:
+                print("Recebido solicitação de conexão")
+                flag0 = False
+            elif tipo == "":
+                pass
+            else:
+                print("Dados recebidos não são de solicitação de conexão")
 
+        flag2 = True
+        msg2 = False
+        while flag2:
+            #Synch 2 (Mensagem tipo 2)
+            if not msg2:
+                print("Enviando mensagem tipo 2")
+                data = (0).to_bytes(1, "big")
+                com.sendData(data,2) #tipo 2
+
+                print("Esperando mensagem tipo 3")
+                #Synch 3 (Mensagem tipo 3)
+                buffer_tuple, nRx = rx.getNData()
+                rxbuffer, tipo = buffer_tuple
+                time.sleep(0.3)
+
+            if msg2:
+                print("Enviando mensagem tipo 6")
+                data = (0).to_bytes(1, "big")
+                com.sendData(data,6) #tipo 6
+
+                print("Esperando mensagem tipo 4")
+                #Synch 4 (Mensagem tipo 4)
+                buffer_tuple, nRx = rx.getNData()
+                rxbuffer, tipo = buffer_tuple
+                time.sleep(0.3)
+
+            if tipo == 3:
+                print("Conexão estabelecida")
+                msg2 = True
+                flag2 = False
+                break
+            elif tipo == 4:
+                flag2 = False
+            elif tipo == 0:
+                print("Erro na recepção do arquivo")
+            elif tipo == "":
+                print("Nada recebido")
+            else:
+                if not msg2:
+                    print("Mensagem tipo 3 não recebida")
+                else:
+                    print("Mensagem tipo 4 não recebida")
+            if not msg2:
+                print("Reenviando mensagem tipo 2")
+            print("-------------------------")
+            time.sleep(1)
+
+
+        f2 = open('ArquivoRecebido.jpg', 'wb')
+        f2.write(rxBuffer)
+        f2.close()
+
+
+        flag5 = True
+        while flag5:
+            #Synch 5 (Mensagem tipo 5)
+            print("Enviando mensagem tipo 5")
+            data = (0).to_bytes(1, "big")
+            com.sendData(data,5) #tipo 5
+
+            print("Esperando mensagem tipo 7")
+            #Synch 7 (Mensagem tipo 7)
+            buffer_tuple, nRx = rx.getNData()
+            rxbuffer, tipo = buffer_tuple
+            time.sleep(0.3)
+
+            if tipo == 7:
+                flag5 = False
+                break
+            elif tipo == "":
+                print("Nada recebido")
+            else:
+                print("Mensagem tipo 7 não recebida")
+
+            print("Reenviando mensagem tipo 5")
+            print("-------------------------")
+            time.sleep(1)
+
+        '''
         # Faz a recepção dos dados
         print ("Recebendo dados .... ")
 
@@ -106,10 +162,11 @@ def main():
             f2.write(rxBuffer)
             f2.close()
             flag = True
+        '''
 
 
         # Encerra comunicação
-        time.sleep(1.5+tempo*1.4)
+        
 
         print("-------------------------")
         print("Comunicação encerrada")
@@ -120,4 +177,4 @@ def main():
 
     #so roda o main quando for executado do terminal ... se for chamado dentro de outro modulo nao roda
 if __name__ == "__main__":
-    Interface()
+    main()

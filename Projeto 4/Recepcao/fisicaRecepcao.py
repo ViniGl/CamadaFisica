@@ -28,6 +28,7 @@ class fisica(object):
         self.stop        = serial.STOPBITS_ONE
         self.timeout     = 0.1
         self.rxRemain    = b""
+        self.tempo = 0
 
     def open(self):
         """ Opens serial port and configure it
@@ -62,6 +63,28 @@ class fisica(object):
         """
         decoded = binascii.unhexlify(data)
         return(decoded)
+
+    def write(self, txBuffer):
+        """ Write data to serial port
+
+        This command takes a buffer and format
+        it before transmit. This is necessary
+        because the pyserial and arduino uses
+        Software flow control between both
+        sides of communication.
+        """
+        datarate = self.baudrate*8/11
+        tempo = (len(txBuffer))*8/datarate
+        print("-------------------------")
+        print("Tempo estimado para transmissão: {:.2f} milisegundos".format(tempo*1000))
+        start_time = time.time()
+        nTx = self.port.write(self.encode(txBuffer))
+        self.port.flush()
+        self.tempo = (time.time()-start_time)*1000
+        time.sleep(0.1)
+        print("Tempo total de transmissão: {:.2f} milisegundos".format(self.tempo))
+        print("-------------------------")
+        return(nTx/2)
 
     def read(self, nBytes):
         """ Read nBytes from the UART com port

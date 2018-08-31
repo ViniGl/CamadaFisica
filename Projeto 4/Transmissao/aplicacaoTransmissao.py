@@ -66,14 +66,71 @@ def main(img):
         buffer_tuple, nRx = rx.getNData()
         rxbuffer, tipo = buffer_tuple
         time.sleep(0.3)
-        if tipo == 1:
+
+        if tipo == 2: ############################ TIPO 2
             flag1 = False
+            break
+        elif tipo == "":
+            print("Nada recebido")
         else:
             print("Mensagem tipo 2 não recebida")
-            print("-------------------------")
-            time.sleep(1)
+
+        print("Reenviando mensagem tipo 1")
+        print("-------------------------")
+        time.sleep(1)
+
+    flag3 = True
+    msg3 = False
+    while flag3:
+        #Synch 3 (Mensagem tipo 3)
+        if not msg3:
+            print("Enviando mensagem tipo 3")
+            data = (0).to_bytes(1, "big")
+            com.sendData(data,3) #tipo 3
+            time.sleep(3)
+
+        #Synch 4 (Mensagem tipo 4)
+        print("Enviando mensagem tipo 4")
+        with open(img, 'rb') as imagem:
+            f = imagem.read()
+        txBuffer = bytes(f)
+        txLen    = len(txBuffer)
+
+        print("Transmitindo {} bytes".format(txLen))
+        com.sendData(txBuffer,4)
+
+        datarate = com.fisica.baudrate*8/11
+        tempo = txLen*8/datarate
+        time.sleep(1.5+tempo*1.4)
+
+        print("Esperando mensagem tipo 5")
+        buffer_tuple, nRx = rx.getNData()
+        rxbuffer, tipo = buffer_tuple
+        time.sleep(0.3)
+        if tipo == 5: ############################ TIPO 5
+            flag3 == False
+            break
+        elif tipo == 6: ############################ TIPO 6
+            msg3 = True
+            print("Falha no recebimento")
+        elif tipo == "":
+            print("Nada recebido")
+            print("Reenviando mensagem tipo 3")
+        else:
+            print("Mensagem tipo 5 não recebida")
+            print("Reenviando mensagem tipo 3")
+
+        print("Reenviando mensagem tipo 4")
+        print("-------------------------")
+        time.sleep(1)
 
 
+    #Synch 7 (Mensagem tipo 7)
+    print("Enviando mensagem tipo 7")
+    data = (0).to_bytes(1, "big")
+    com.sendData(data,7) #tipo 7
+    print("-------------------------")
+    time.sleep(3)
 
     #Transmissao de dados (Mensagem tipo 4)
     # a seguir ha um exemplo de dados sendo carregado para transmissao
@@ -115,9 +172,7 @@ def main(img):
         print("Falha no envio!")
 
     else:
-        f2 = open('ArquivoRecebido.jpg', 'wb')
-        f2.write(rxBuffer)
-        f2.close()
+         
     '''
 
     # Encerra comunicação

@@ -91,9 +91,6 @@ class RX(object):
         self.threadPause()
         # print(self.buffer)
         b           = self.buffer
-        if b == b'':
-            print("Erro: ")
-            return ""
         data = bytearray(b)
         a = 658188
         eop = bytearray(a.to_bytes(3,'big'))
@@ -111,7 +108,7 @@ class RX(object):
             if eop_pos == 0:
                 self.clearBuffer()
                 print("Erro: EOP não encontrado")
-                return ""
+                return "", 0
 
             payload = b[eop_pos-size: eop_pos]
         except Exception as e:
@@ -121,7 +118,7 @@ class RX(object):
         if len(payload) != size:
             self.clearBuffer()
             print("Erro: Tamanho do payload não igual ao informado no Head")
-            return ""
+            return "", 0
 
         eop = b[eop_pos:]
 
@@ -152,7 +149,7 @@ class RX(object):
 
         while not check:
             BufferRecebido = self.getBufferLen()
-            print("* Recebido: {} bytes".format(str(BufferRecebido)))
+            print("* Recebendo: {} bytes".format(str(BufferRecebido)))
             if BufferRecebido == tmp:
                 check = True
                 print("Fim da recepção")

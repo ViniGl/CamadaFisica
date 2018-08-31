@@ -96,62 +96,42 @@ class RX(object):
         eop = bytearray(a.to_bytes(3,'big'))
         byte_stuffing = bytearray(b'\n\x00\x0b\x00\x0c\x00')
         # byte_stuffing = bytearray(byte_stuffing.to_bytes(6, 'big'))
-
+        tipo = b[2]
         header = b[0:16]
-        typeChecked = self.checkDataReceived(header)
-        if typeChecked == 4:
-            try:
-                size = int(str(int.from_bytes(header,byteorder='big')),2)
-                print(data)
-                print(eop)
-                print(byte_stuffing)
-                eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
-                print(data)
-                if eop_pos == 0:
-                    self.clearBuffer()
-                    print("Erro: EOP não encontrado")
-                    return ""
-
-                payload = b[eop_pos-size: eop_pos]
-            except:
-                print('Falha no envio')
-                return ""
-
-            if len(payload) != size:
+        try:
+            size = int(str(int.from_bytes(header,byteorder='big')),2)
+            #print(data)
+            #print(eop)
+            #print(byte_stuffing)
+            eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
+            #print(data)
+            if eop_pos == 0:
                 self.clearBuffer()
-                print("Erro: Tamanho do payload não igual ao informado no Head")
-                return ""
+                print("Erro: EOP não encontrado")
+                return "", 0
 
-            eop = b[eop_pos:]
+            payload = b[eop_pos-size: eop_pos]
+        except Exception as e:
+            print('Erro: ' + str(e))
+            return "", 0
 
-            overhead = (len(header)+len(payload)+len(eop))/len(payload)
-
-            print("Overhead: {:.3f}".format(overhead))
-            print("EOP na posição " + str(eop_pos))
-            # self.buffer = self.buffer[nData:]
-            self.threadResume()
+        if len(payload) != size:
             self.clearBuffer()
+            print("Erro: Tamanho do payload não igual ao informado no Head")
+            return "", 0
 
-            return(payload)
+        eop = b[eop_pos:]
 
-        else:
-            return typeChecked
+        overhead = (len(header)+len(payload)+len(eop))/len(payload)
+        print("Overhead: {:.3f}".format(overhead))
+        print("EOP na posição " + str(eop_pos))
+        print("Mensagem recebida tipo " + str(tipo))
+        print("-------------------------")
+        # self.buffer = self.buffer[nData:]
+        self.threadResume()
+        self.clearBuffer()
 
-
-    def checkDataReceived(self,header):
-        type = int(str(int.from_bytes(header[2],byteorder='big')),2)
-        if type == 1:
-            return 1
-        elif type == 2:
-            return 2
-        elif type == 3:
-            return 3
-        elif type == 4:
-            return 4
-        elif type == 5:
-            return 5
-        elif type == 6:
-            return 6
+        return payload, tipo
 
 
     def getNData(self):
@@ -159,29 +139,26 @@ class RX(object):
 
         This function blocks until the number of bytes is received
         """
-
         check = False
         tmp = "nan"
+        print("Esperando ...")
+        start_time = time.time()
         while self.getBufferLen()==0:
-            print("Esperando ...")
-            time.sleep(1.3)
+            if time.time()-start_time >= 5:
+                return ("",""),""
 
         while not check:
             BufferRecebido = self.getBufferLen()
-            print("Recebido: {} bytes".format(str(BufferRecebido)))
+            print("* Recebendo: {} bytes".format(str(BufferRecebido)))
             if BufferRecebido == tmp:
                 check = True
+                print("Fim da recepção")
+                print("-------------------------")
             else:
                 tmp = BufferRecebido
-            time.sleep(1.3)
-        #
-        # while(self.getBufferLen() < size):
-        #     time.sleep(0.05)
+            time.sleep(1.2)
 
-
-        print("Fim da recepção")
-        return(self.getBuffer(),tmp)
-
+        return self.getBuffer(),tmp
 
     def clearBuffer(self):
         """ Clear the reception buffer
@@ -192,7 +169,6 @@ class RX(object):
         queue = bytearray()
         eop_pos = 0
         for i in range(len(lista)):
-            # print(lista[i])
             queue.append(lista[i])
             if len(queue) >= 3:
                 if queue[-3:] == eop:
