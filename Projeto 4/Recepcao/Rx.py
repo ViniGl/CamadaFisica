@@ -97,22 +97,29 @@ class RX(object):
         byte_stuffing = bytearray(b'\n\x00\x0b\x00\x0c\x00')
         # byte_stuffing = bytearray(byte_stuffing.to_bytes(6, 'big'))
         tipo = b[2]
-        header = b[0:16]
+        header = b[8:16]
         try:
-            size = int(str(int.from_bytes(header,byteorder='big')),2)
-            #print(data)
-            #print(eop)
-            #print(byte_stuffing)
             eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
-            #print(data)
-            if eop_pos == 0:
+            if eop_pos < 17:
+                print("EOP posicao invalida")
                 self.clearBuffer()
-                print("Erro: EOP não encontrado")
-                return "", 0
+                return "",0
+            else:
+                size = int(str(int.from_bytes(header,byteorder='big')),2)
+                #print(data)
+                #print(eop)
+                #print(byte_stuffing)
 
-            payload = b[eop_pos-size: eop_pos]
+                #print(data)
+                if eop_pos == 0:
+                    self.clearBuffer()
+                    print("Erro: EOP não encontrado")
+                    return "", 0
+
+                payload = b[eop_pos - size: eop_pos]
         except Exception as e:
-            print('Erro: ' + str(e))
+            self.clearBuffer()
+            print("Erro")
             return "", 0
 
         if len(payload) != size:
@@ -130,7 +137,6 @@ class RX(object):
         # self.buffer = self.buffer[nData:]
         self.threadResume()
         self.clearBuffer()
-
         return payload, tipo
 
 
@@ -143,6 +149,7 @@ class RX(object):
         tmp = "nan"
         print("Esperando ...")
         start_time = time.time()
+        # print(self.getBufferLen())
         while self.getBufferLen()==0:
             if time.time()-start_time >= 5:
                 return ("",""),""

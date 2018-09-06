@@ -21,9 +21,9 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-#serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
+serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM9"                  # Windows(variacao de)
+# serialName = "COM9"                  # Windows(variacao de)
 
 
 def main():
@@ -40,21 +40,20 @@ def main():
         print("-------------------------")
         print("Comunicação Aberta")
         print("-------------------------")
-
         # a seguir ha um exemplo de dados sendo carregado para transmissao
         # voce pode criar o seu carregando os dados de uma imagem. Tente descobrir
         #como fazer isso
         flag0 = True
         while flag0:
             buffer_tuple, nRx = rx.getNData()
+
             rxbuffer, tipo = buffer_tuple
             if tipo == 1:
                 print("Recebido solicitação de conexão")
                 flag0 = False
             elif tipo == "":
                 pass
-            else:
-                print("Dados recebidos não são de solicitação de conexão")
+
 
         flag2 = True
         msg2 = False
@@ -64,20 +63,9 @@ def main():
                 print("Enviando mensagem tipo 2")
                 data = (0).to_bytes(1, "big")
                 com.sendData(data,2) #tipo 2
-
+                time.sleep(0.5)
                 print("Esperando mensagem tipo 3")
                 #Synch 3 (Mensagem tipo 3)
-                buffer_tuple, nRx = rx.getNData()
-                rxbuffer, tipo = buffer_tuple
-                time.sleep(0.3)
-
-            if msg2:
-                print("Enviando mensagem tipo 6")
-                data = (0).to_bytes(1, "big")
-                com.sendData(data,6) #tipo 6
-
-                print("Esperando mensagem tipo 4")
-                #Synch 4 (Mensagem tipo 4)
                 buffer_tuple, nRx = rx.getNData()
                 rxbuffer, tipo = buffer_tuple
                 time.sleep(0.3)
@@ -85,10 +73,7 @@ def main():
             if tipo == 3:
                 print("Conexão estabelecida")
                 msg2 = True
-                flag2 = False
                 break
-            elif tipo == 4:
-                flag2 = False
             elif tipo == 0:
                 print("Erro na recepção do arquivo")
             elif tipo == "":
@@ -103,10 +88,21 @@ def main():
             print("-------------------------")
             time.sleep(1)
 
+        while msg2:
+            print("Esperando mensagem tipo 4")
+            #Synch 4 (Mensagem tipo 4)
+            buffer_tuple, nRx = rx.getNData()
+            msg, tipo = buffer_tuple
+            if tipo == 4:
+                break
+            if tipo == 3:
+                time.sleep(0.3)
+            if msg == "":
+                print("Enviando mensagem tipo 6")
+                data = (0).to_bytes(1, "big")
+                com.sendData(data,6)
+            time.sleep(1)
 
-        f2 = open('ArquivoRecebido.jpg', 'wb')
-        f2.write(rxBuffer)
-        f2.close()
 
 
         flag5 = True
@@ -115,15 +111,15 @@ def main():
             print("Enviando mensagem tipo 5")
             data = (0).to_bytes(1, "big")
             com.sendData(data,5) #tipo 5
-
+            time.sleep(0.3)
             print("Esperando mensagem tipo 7")
             #Synch 7 (Mensagem tipo 7)
             buffer_tuple, nRx = rx.getNData()
-            rxbuffer, tipo = buffer_tuple
+            rxBuffer, tipo = buffer_tuple
+
             time.sleep(0.3)
 
             if tipo == 7:
-                flag5 = False
                 break
             elif tipo == "":
                 print("Nada recebido")
@@ -133,6 +129,11 @@ def main():
             print("Reenviando mensagem tipo 5")
             print("-------------------------")
             time.sleep(1)
+
+
+        f2 = open('ArquivoRecebido.jpg', 'wb')
+        f2.write(msg)
+        f2.close()
 
         '''
         # Faz a recepção dos dados
@@ -166,7 +167,7 @@ def main():
 
 
         # Encerra comunicação
-        
+
 
         print("-------------------------")
         print("Comunicação encerrada")
