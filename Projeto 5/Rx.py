@@ -109,39 +109,39 @@ class RX(object):
         header = b[8]
 
         if parte == self.esperado:
-	        eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
-	        size = int(str(int.from_bytes(header,byteorder='big')),2)
+            eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
+            size = int(str(int.from_bytes(header,byteorder='big')),2)
 
-	        if eop_pos == 0:
-	            self.clearBuffer()
-	            print("Erro: EOP não encontrado")
-	            return "", 0, 0
+            if eop_pos == 0:
+                self.clearBuffer()
+                print("Erro: EOP não encontrado")
+                return "", 0, 0
 
-	        payload = b[eop_pos - size: eop_pos]
+            payload = b[eop_pos - size: eop_pos]
 
-	        if len(payload) != size:
-	            self.clearBuffer()
-	            print("Erro: Tamanho do payload não igual ao informado no Head")
-	            return "", 0, 0
+            if len(payload) != size:
+                self.clearBuffer()
+                print("Erro: Tamanho do payload não igual ao informado no Head")
+                return "", 0, 0
 
-	        eop = b[eop_pos:]
+            eop = b[eop_pos:]
 
-	        overhead = (len(header)+len(payload)+len(eop))/len(payload)
-	        #print("Overhead: {:.3f}".format(overhead))
-	        #print("EOP na posição " + str(eop_pos))
-	        print("Mensagem recebida tipo " + str(tipo))
-	        print("-------------------------")
-	        self.clearBuffer()
-	        self.threadResume()
-	        if parte == total:
+            overhead = (len(header)+len(payload)+len(eop))/len(payload)
+            #print("Overhead: {:.3f}".format(overhead))
+            #print("EOP na posição " + str(eop_pos))
+            print("Mensagem recebida tipo " + str(tipo))
+            print("-------------------------")
+            self.clearBuffer()
+            self.threadResume()
+            if parte == total:
                 payload = "".join(self.packets)
                 return payload, tipo, erro_npacote
             else:
                 joinPacket(payload)
-	    else:
-	    	return "",0,self.esperado
+        else:
+            return "",0,self.esperado
 
-	def joinPacket(self,payload):
+    def joinPacket(self,payload):
         while not flag:
             self.packets.append(payload)
 
