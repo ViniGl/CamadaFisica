@@ -26,6 +26,8 @@ import time
 serialName = "COM5"                  # Windows(variacao de)
 
 
+com = enlace(serialName)
+
 def Interface():
 
     master = Tk()
@@ -41,7 +43,7 @@ def Interface():
 
     mainloop()
 
-def senSync1():
+def sendSync1():
     print("Enviando mensagem tipo 1")
     data = (0).to_bytes(1, "big")
     time.sleep(1)
@@ -77,18 +79,13 @@ def sendMSg(img):
 
 def main(img):
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
-    com = enlace(serialName)
-    rx = com.rx
 
+    rx = com.rx
+    count = 0
     # Ativa comunicacao
     com.enable()
 print("Enviando mensagem tipo 2")
-                data = (0).to_bytes(1, "big")
-                time.sleep(1)
-                com.sendData(data,2) #tipo 2
-                print("Esperando mensagem tipo 3")
-                buffer_tuple, nRx = rx.getNData()
-                rxbuffer, tipo = buffer_tuple
+
     #verificar que a comunicação foi aberta
     print("-------------------------")
     print("Comunicação Aberta")
@@ -123,7 +120,7 @@ print("Enviando mensagem tipo 2")
         time.sleep(0.5)
 
         sendMSg(img)
-
+        count+=1
         datarate = com.fisica.baudrate*8/11
         tempo = txLen*8/datarate
         # time.sleep(1.5+tempo*1.4)
@@ -145,7 +142,10 @@ print("Enviando mensagem tipo 2")
             print("Reenviando mensagem tipo 3 e 4")
 
         print("-------------------------")
-
+        if count == 20:
+            time.sleep(5)
+            rx.clearBuffer()
+            count = 0
     closeConnection()
 
     #Transmissao de dados (Mensagem tipo 4)

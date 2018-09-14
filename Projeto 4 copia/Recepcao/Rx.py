@@ -101,6 +101,7 @@ class RX(object):
         try:
             eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
             if eop_pos < 17:
+
                 print("EOP posicao invalida")
                 self.clearBuffer()
                 return "",0

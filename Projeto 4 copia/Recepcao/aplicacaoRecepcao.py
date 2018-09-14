@@ -21,25 +21,31 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
+serialName = "/dev/ttyACM4"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 # serialName = "COM9"                  # Windows(variacao de)
-
-sendSync2():
+com = enlace(serialName)
+def sendSync2():
     print("Enviando mensagem tipo 2")
     data = (0).to_bytes(1, "big")
     time.sleep(1)
     com.sendData(data,2) #tipo 2
 
-sendSync5():
+def sendSync5():
     print("Enviando mensagem tipo 5")
     data = (0).to_bytes(1, "big")
     time.sleep(1)
     com.sendData(data,5) #tipo 5
 
+def sendSync6():
+    print("Enviando mensagem tipo 6")
+    data = (0).to_bytes(1, "big")
+    time.sleep(1)
+    com.sendData(data,6)
+
 def main():
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
-    com = enlace(serialName)
+
     flag = False
     rx = com.rx
     tx = com.tx
@@ -47,7 +53,7 @@ def main():
     com.enable()
 
     while True:
-        rx.clearBuffer()
+
         #verificar que a comunicação foi aberta
         print("-------------------------")
         print("Comunicação Aberta")
@@ -59,7 +65,8 @@ def main():
         flag2 = False
         flag5 = False
         msg2 = False
-
+        count = 0
+        rx.clearBuffer()
         while not flag0:
             buffer_tuple, nRx = rx.getNData()
             rxbuffer, tipo = buffer_tuple
@@ -116,16 +123,22 @@ def main():
                 msg, tipo = buffer_tuple
                 if tipo == 4:
                     break
+                else:
+                    count+=1
+                    sendSync6()
 
             elif tipo == 7:
                 flag5= True
                 break
 
             else:
-                print("Enviando mensagem tipo 6")
-                data = (0).to_bytes(1, "big")
-                time.sleep(1)
-                com.sendData(data,6)
+                count +=1
+                sendSync6()
+
+            if count == 20:
+                time.sleep(5)
+                rx.clearBuffer()
+                count =0
 
         start = time.time()
         while not flag5: #Synch 5 (Mensagem tipo 5)
