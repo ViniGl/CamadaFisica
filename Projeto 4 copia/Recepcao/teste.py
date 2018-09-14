@@ -1,15 +1,3 @@
-a = False
+a = ["a","s","t"]
 
-if not a :
-    print("passou")
-
-if a:
-    print('passou2')
-
-a = True
-
-if not a :
-    print("passou")
-
-if a:
-    print('passou2')
+print("".join(a))

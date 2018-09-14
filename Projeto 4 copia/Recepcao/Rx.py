@@ -27,6 +27,8 @@ class RX(object):
         self.threadStop  = False
         self.threadMutex = True
         self.READLEN     = 1024
+        self.packets     =  []
+        self.esperado    =  1
 
     def thread(self):
         """ RX thread, to send data in parallel with the code
@@ -58,7 +60,9 @@ class RX(object):
         self.threadMutex = False
 
     def threadResume(self):
-        """ Resume the RX thread (after suspended)
+        """ Resume the Relse:
+                size = int(str(int.from_bytes(header,byteorder='big')),2)
+                payload = b[eop_pos - size: eop_pos]X thread (after suspended)
         """
         self.threadMutex = True
 
@@ -96,47 +100,61 @@ class RX(object):
         eop = bytearray(a.to_bytes(3,'big'))
         byte_stuffing = bytearray(b'\n\x00\x0b\x00\x0c\x00')
         # byte_stuffing = bytearray(byte_stuffing.to_bytes(6, 'big'))
+        parte = b[0]
+        total = b[1]
         tipo = b[2]
         header = b[8:16]
-        try:
-            eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
-            if eop_pos < 17:
 
-                print("EOP posicao invalida")
-                self.clearBuffer()
-                return "",0
+        if parte == self.esperado:
+            try:
+                eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
+                if eop_pos < 17:
 
-            elif eop_pos == 0:
+                    print("EOP posicao invalida")
+                    self.clearBuffer()
+                    return "",0
+
+                elif eop_pos == 0:
+                    self.clearBuffer()
+                    print("Erro: EOP não encontrado")
+                    return "", 0
+
+                else:
+                    size = int(str(int.from_bytes(header,byteorder='big')),2)
+                    payload = b[eop_pos - size: eop_pos]
+
+            except Exception as e:
                 self.clearBuffer()
-                print("Erro: EOP não encontrado")
+                print("Erro")
                 return "", 0
 
+            if len(payload) != size:
+                self.clearBuffer()
+                print("Erro: Tamanho do payload não igual ao informado no Head")
+                return "", 0
+
+            eop = b[eop_pos:]
+
+            overhead = (len(header)+len(payload)+len(eop))/len(payload)
+            print("Overhead: {:.3f}".format(overhead))
+            print("EOP na posição " + str(eop_pos))
+            print("Mensagem recebida tipo " + str(tipo))
+            print("-------------------------")
+            # self.buffer = self.buffer[nData:]
+            self.clearBuffer()
+            self.threadResume()
+            if parte == total:
+                payload = "".join(self.packets)
+                return payload, tipo
             else:
-                size = int(str(int.from_bytes(header,byteorder='big')),2)
-                payload = b[eop_pos - size: eop_pos]
+                joinPacket(payload)
+        else:
+            return "","",self.esperado
 
-        except Exception as e:
-            self.clearBuffer()
-            print("Erro")
-            return "", 0
 
-        if len(payload) != size:
-            self.clearBuffer()
-            print("Erro: Tamanho do payload não igual ao informado no Head")
-            return "", 0
-
-        eop = b[eop_pos:]
-
-        overhead = (len(header)+len(payload)+len(eop))/len(payload)
-        print("Overhead: {:.3f}".format(overhead))
-        print("EOP na posição " + str(eop_pos))
-        print("Mensagem recebida tipo " + str(tipo))
-        print("-------------------------")
-        # self.buffer = self.buffer[nData:]
-        self.clearBuffer()
-        self.threadResume()
-        return payload, tipo
-
+    def joinPacket(self,payload):
+        while not flag:
+            self.packets.append(payload)
 
     def getNData(self):
         """ Read N bytes of data from the reception buffer
