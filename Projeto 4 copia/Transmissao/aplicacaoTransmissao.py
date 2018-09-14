@@ -41,6 +41,40 @@ def Interface():
 
     mainloop()
 
+def senSync1():
+    print("Enviando mensagem tipo 1")
+    data = (0).to_bytes(1, "big")
+    time.sleep(1)
+    com.sendData(data,1) #tipo 1
+
+
+def sendSync3():
+    print("Enviando mensagem tipo 3")
+    data = (0).to_bytes(1, "big")
+    time.sleep(1)
+    com.sendData(data,3) #tipo 3
+
+def closeConnection():
+    #Synch 7 (Mensagem tipo 7)
+    print("Enviando mensagem tipo 7")
+    data = (0).to_bytes(1, "big")
+    time.sleep(1)
+    com.sendData(data,7) #tipo 7
+    print("-------------------------")
+
+def sendMSg(img):
+        #Synch 4 (Mensagem tipo 4)
+        print("Enviando mensagem tipo 4")
+        with open(img, 'rb') as imagem:
+            f = imagem.read()
+        txBuffer = bytes(f)
+        txLen    = len(txBuffer)
+
+        print("Transmitindo {} bytes".format(txLen))
+        time.sleep(1)
+        com.sendData(txBuffer,4)
+
+
 def main(img):
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
     com = enlace(serialName)
@@ -48,7 +82,13 @@ def main(img):
 
     # Ativa comunicacao
     com.enable()
-
+print("Enviando mensagem tipo 2")
+                data = (0).to_bytes(1, "big")
+                time.sleep(1)
+                com.sendData(data,2) #tipo 2
+                print("Esperando mensagem tipo 3")
+                buffer_tuple, nRx = rx.getNData()
+                rxbuffer, tipo = buffer_tuple
     #verificar que a comunicação foi aberta
     print("-------------------------")
     print("Comunicação Aberta")
@@ -56,13 +96,10 @@ def main(img):
 
     flag1 = False
     while not flag1: #Synch 1 (Mensagem tipo 1)
-        print("Enviando mensagem tipo 1")
-        data = (0).to_bytes(1, "big")
-        time.sleep(1)
-        com.sendData(data,1) #tipo 1
 
+        sendSync1()
+        time.sleep(0.5)
         print("Esperando mensagem tipo 2")
-        #Synch 2 (Mensagem tipo 2)
         buffer_tuple, nRx = rx.getNData()
         rxbuffer, tipo = buffer_tuple
 
@@ -81,29 +118,21 @@ def main(img):
     msg3 = False
     while not flag3: #Synch 3 (Mensagem tipo 3)
         if not msg3:
-            print("Enviando mensagem tipo 3")
-            data = (0).to_bytes(1, "big")
-            time.sleep(1)
-            com.sendData(data,3) #tipo 3
+            sendSync3()
 
-        #Synch 4 (Mensagem tipo 4)
-        print("Enviando mensagem tipo 4")
-        with open(img, 'rb') as imagem:
-            f = imagem.read()
-        txBuffer = bytes(f)
-        txLen    = len(txBuffer)
+        time.sleep(0.5)
 
-        print("Transmitindo {} bytes".format(txLen))
-        time.sleep(1)
-        com.sendData(txBuffer,4)
+        sendMSg(img)
 
         datarate = com.fisica.baudrate*8/11
         tempo = txLen*8/datarate
         # time.sleep(1.5+tempo*1.4)
+        time.sleep(0.5)
 
         print("Esperando mensagem tipo 5")
         buffer_tuple, nRx = rx.getNData()
         rxbuffer, tipo = buffer_tuple
+
         if tipo == 5: #TIPO 5
             break
         elif tipo == 6: #TIPO 6
@@ -117,12 +146,7 @@ def main(img):
 
         print("-------------------------")
 
-    #Synch 7 (Mensagem tipo 7)
-    print("Enviando mensagem tipo 7")
-    data = (0).to_bytes(1, "big")
-    time.sleep(1)
-    com.sendData(data,7) #tipo 7
-    print("-------------------------")
+    closeConnection()
 
     #Transmissao de dados (Mensagem tipo 4)
     # a seguir ha um exemplo de dados sendo carregado para transmissao
