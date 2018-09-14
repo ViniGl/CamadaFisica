@@ -130,7 +130,8 @@ class TX(object):
         data = bytes(data)
         #print(data)
         self.buffer = ini + tipo + resto + ps + data + e
-        #print(self.buffer)
+
+        print(self.buffer)
 
         self.threadMutex  = True
         print("Buffer enviado")

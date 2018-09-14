@@ -96,24 +96,32 @@ class RX(object):
         eop = bytearray(a.to_bytes(3,'big'))
         byte_stuffing = bytearray(b'\n\x00\x0b\x00\x0c\x00')
         # byte_stuffing = bytearray(byte_stuffing.to_bytes(6, 'big'))
+        
+        if len(b) <= 17:
+            print("Erro: Tamanho do pacote muito pequeno (menos de 17 bytes)")
+            return "", 0
+
         tipo = b[2]
         header = b[8:16]
         try:
-            size = int(str(int.from_bytes(header,byteorder='big')),2)
-            #print(data)
-            #print(eop)
-            #print(byte_stuffing)
             eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
-            #print(data)
-            if eop_pos == 0:
-                self.clearBuffer()
-                print("Erro: EOP não encontrado")
-                return "", 0
-
-            payload = b[eop_pos-size: eop_pos]
         except Exception as e:
-            print('Erro: ' + str(e))
-            return ""
+            self.clearBuffer()
+            print("Erro eop e desstuffing: " + str(e))
+            return "", 0
+        size = int(str(int.from_bytes(header,byteorder='big')),2)
+        #print(data)
+        #print(eop)
+        #print(byte_stuffing)
+
+        #print(data)
+        if eop_pos == 0:
+            self.clearBuffer()
+            print("Erro: EOP não encontrado")
+            return "", 0
+
+        payload = b[eop_pos - size: eop_pos]
+        
 
         if len(payload) != size:
             self.clearBuffer()
@@ -130,7 +138,6 @@ class RX(object):
         # self.buffer = self.buffer[nData:]
         self.threadResume()
         self.clearBuffer()
-
         return payload, tipo
 
 
@@ -143,6 +150,7 @@ class RX(object):
         tmp = "nan"
         print("Esperando ...")
         start_time = time.time()
+        # print(self.getBufferLen())
         while self.getBufferLen()==0:
             if time.time()-start_time >= 5:
                 return ("",""),""
@@ -156,10 +164,9 @@ class RX(object):
                 print("-------------------------")
             else:
                 tmp = BufferRecebido
-            time.sleep(1.2)
+            time.sleep(1)
 
         return self.getBuffer(),tmp
-
 
     def clearBuffer(self):
         """ Clear the reception buffer

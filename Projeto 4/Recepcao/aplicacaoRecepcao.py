@@ -21,157 +21,138 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
+#serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-# serialName = "COM9"                  # Windows(variacao de)
+serialName = "COM4"                  # Windows(variacao de)
 
 
 def main():
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
     com = enlace(serialName)
-    flag = False
     rx = com.rx
     tx = com.tx
     # Ativa comunicacao
     com.enable()
 
-    while not flag:
-        #verificar que a comunicação foi aberta
-        print("-------------------------")
-        print("Comunicação Aberta")
-        print("-------------------------")
-        # a seguir ha um exemplo de dados sendo carregado para transmissao
-        # voce pode criar o seu carregando os dados de uma imagem. Tente descobrir
-        #como fazer isso
-        flag0 = True
-        while flag0:
-            buffer_tuple, nRx = rx.getNData()
 
-            rxbuffer, tipo = buffer_tuple
-            if tipo == 1:
-                print("Recebido solicitação de conexão")
-                flag0 = False
-            elif tipo == "":
-                pass
+    #verificar que a comunicação foi aberta
+    print("-------------------------")
+    print("Comunicação Aberta")
+    print("-------------------------")
+    # a seguir ha um exemplo de dados sendo carregado para transmissao
+    # voce pode criar o seu carregando os dados de uma imagem. Tente descobrir
+    #como fazer isso
 
+    flag2 = True
+    flag5 = True
+    flag6 = True
 
-        flag2 = True
-        msg2 = False
-        while flag2:
-            #Synch 2 (Mensagem tipo 2)
-            if not msg2:
-                print("Enviando mensagem tipo 2")
-                data = (0).to_bytes(1, "big")
-                com.sendData(data,2) #tipo 2
-                time.sleep(0.5)
-                print("Esperando mensagem tipo 3")
-                #Synch 3 (Mensagem tipo 3)
-                buffer_tuple, nRx = rx.getNData()
-                rxbuffer, tipo = buffer_tuple
-                time.sleep(0.3)
+    while True:
+        buffer_tuple, nRx = rx.getNData()
 
-            if tipo == 3:
-                print("Conexão estabelecida")
-                msg2 = True
-                break
-            elif tipo == 0:
-                print("Erro na recepção do arquivo")
-            elif tipo == "":
-                print("Nada recebido")
-            else:
-                if not msg2:
-                    print("Mensagem tipo 3 não recebida")
-                else:
-                    print("Mensagem tipo 4 não recebida")
-            if not msg2:
-                print("Reenviando mensagem tipo 2")
-            print("-------------------------")
-            time.sleep(1)
+        rxbuffer, tipo = buffer_tuple
+        if tipo == 1:
+            print("Recebido solicitação de conexão")
+            break
+        if tipo == 7:
+            print("Encerrando comunicação")
+            flag2 = False
+            flag5 = False
+            flag6 = False
+            break
 
-        while msg2:
-            print("Esperando mensagem tipo 4")
-            #Synch 4 (Mensagem tipo 4)
-            buffer_tuple, nRx = rx.getNData()
-            msg, tipo = buffer_tuple
-            if tipo == 4:
-                break
-            if tipo == 3:
-                time.sleep(0.3)
-            if msg == "":
-                print("Enviando mensagem tipo 6")
-                data = (0).to_bytes(1, "big")
-                com.sendData(data,6)
-            time.sleep(1)
-
-
-
-        flag5 = True
-        while flag5:
-            #Synch 5 (Mensagem tipo 5)
-            print("Enviando mensagem tipo 5")
+    
+    msg2 = False
+    while flag2:
+        #Synch 2 (Mensagem tipo 2)
+        if not msg2:
+            print("Enviando mensagem tipo 2")
             data = (0).to_bytes(1, "big")
-            com.sendData(data,5) #tipo 5
-            time.sleep(0.3)
-            print("Esperando mensagem tipo 7")
-            #Synch 7 (Mensagem tipo 7)
+            com.sendData(data,2) #tipo 2
+            time.sleep(0.5)
+            print("Esperando mensagem tipo 3")
+            #Synch 3 (Mensagem tipo 3)
             buffer_tuple, nRx = rx.getNData()
-            rxBuffer, tipo = buffer_tuple
-
+            rxbuffer, tipo = buffer_tuple
             time.sleep(0.3)
 
-            if tipo == 7:
-                break
-            elif tipo == "":
-                print("Nada recebido")
-            else:
-                print("Mensagem tipo 7 não recebida")
-
-            print("Reenviando mensagem tipo 5")
-            print("-------------------------")
-            time.sleep(1)
-
-
-        f2 = open('ArquivoRecebido.jpg', 'wb')
-        f2.write(msg)
-        f2.close()
-
-        '''
-        # Faz a recepção dos dados
-        print ("Recebendo dados .... ")
-
-        rxBuffer, nRx = rx.getNData()
-
-
-        # log
-        print ("Lido {} bytes".format(nRx))
-
-        type = checkDataType(rxBuffer)
-
-
-        if type != 4:
-            msg = SyncMaker(type)
-            tx.sendBuffer(msg)
-
-        elif type == "":
-            msg = SyncMaker(6)
-            tx.sendBuffer(msg)
-
+        if tipo == 3:
+            print("Conexão estabelecida")
+            msg2 = True
+            break
+        elif tipo == 0:
+            print("Erro na recepção do arquivo")
+        if tipo == 7:
+            print("Encerrando comunicação")
+            flag5 = False
+            flag6 = False
+            break
+        elif tipo == "":
+            print("Nada recebido")
         else:
-            msg = SyncMaker(5)
-            tx.sendBuffer(msg)
+            print("Mensagem tipo 3 não recebida")
+
+        print("Reenviando mensagem tipo 2")
+        print("-------------------------")
+        time.sleep(1)
+
+    while flag6:
+        print("Esperando mensagem tipo 4")
+        #Synch 4 (Mensagem tipo 4)
+        buffer_tuple, nRx = rx.getNData()
+        msg, tipo = buffer_tuple
+        if tipo == 4:
             f2 = open('ArquivoRecebido.jpg', 'wb')
-            f2.write(rxBuffer)
+            f2.write(msg)
             f2.close()
-            flag = True
-        '''
+            break
+        if tipo == 3:
+            time.sleep(0.3)
+        if tipo == 0:
+            print("Falha no recebimento")
+            print("Enviando mensagem tipo 6")
+            data = (0).to_bytes(1, "big")
+            com.sendData(data,6)
+            time.sleep(1)
+        if tipo == 7:
+            print("Encerrando comunicação")
+            flag5 = False
+            break
+        else:
+            print("Nada recebido")
+        time.sleep(1)
 
 
-        # Encerra comunicação
 
+    
+    while flag5:
+        #Synch 5 (Mensagem tipo 5)
+        print("Enviando mensagem tipo 5")
+        data = (0).to_bytes(1, "big")
+        com.sendData(data,5) #tipo 5
+        time.sleep(0.3)
+        print("Esperando mensagem tipo 7")
+        #Synch 7 (Mensagem tipo 7)
+        buffer_tuple, nRx = rx.getNData()
+        rxBuffer, tipo = buffer_tuple
 
+        time.sleep(0.3)
+
+        if tipo == 7:
+            break
+        elif tipo == "":
+            print("Nada recebido")
+        else:
+            print("Mensagem tipo 7 não recebida")
+
+        print("Reenviando mensagem tipo 5")
         print("-------------------------")
-        print("Comunicação encerrada")
-        print("-------------------------")
+        time.sleep(1)
+
+
+    print("-------------------------")
+    print("Comunicação encerrada")
+    print("-------------------------")
 
 
     com.disable()

@@ -23,7 +23,7 @@ import time
 
 #serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM5"                  # Windows(variacao de)
+serialName = "COM12"                  # Windows(variacao de)
 
 
 def Interface():
@@ -55,8 +55,12 @@ def main(img):
     print("-------------------------")
 
     flag1 = True
+    flag3 = True
+    
+
     while flag1:
         #Synch 1 (Mensagem tipo 1)
+        time.sleep(0.3)
         print("Enviando mensagem tipo 1")
         data = (0).to_bytes(1, "big")
         com.sendData(data,1) #tipo 1
@@ -67,8 +71,12 @@ def main(img):
         rxbuffer, tipo = buffer_tuple
         time.sleep(0.3)
 
-        if tipo == 2: ############################ TIPO 2
-            flag1 = False
+        if tipo == 2:
+            time.sleep(2)
+            break
+        if tipo == 7:
+            flag3 = False
+            print("Encerrando comunicação")
             break
         elif tipo == "":
             print("Nada recebido")
@@ -77,19 +85,17 @@ def main(img):
 
         print("Reenviando mensagem tipo 1")
         print("-------------------------")
-        time.sleep(1)
+        time.sleep(0.3)
 
-    flag3 = True
     msg3 = False
     while flag3:
-        #Synch 3 (Mensagem tipo 3)
         if not msg3:
+            time.sleep(0.3)
             print("Enviando mensagem tipo 3")
             data = (0).to_bytes(1, "big")
-            com.sendData(data,3) #tipo 3
-            time.sleep(3)
+            com.sendData(data,3)
+            time.sleep(5)
 
-        #Synch 4 (Mensagem tipo 4)
         print("Enviando mensagem tipo 4")
         with open(img, 'rb') as imagem:
             f = imagem.read()
@@ -107,19 +113,22 @@ def main(img):
         buffer_tuple, nRx = rx.getNData()
         rxbuffer, tipo = buffer_tuple
         time.sleep(0.3)
-        if tipo == 5: ############################ TIPO 5
-            flag3 == False
+        if tipo == 5:
+            time.sleep(2)
             break
-        elif tipo == 6: ############################ TIPO 6
+        elif tipo == 6:
             msg3 = True
-            print("Falha no recebimento")
+            print("Falha no envio")
+        elif tipo == 7:
+            print("Encerrando comunicação")
+            break
         elif tipo == "":
             print("Nada recebido")
-            print("Reenviando mensagem tipo 3")
         else:
             print("Mensagem tipo 5 não recebida")
-            print("Reenviando mensagem tipo 3")
 
+        if not msg3:
+            print("Reenviando mensagem tipo 3")
         print("Reenviando mensagem tipo 4")
         print("-------------------------")
         time.sleep(1)
@@ -129,54 +138,7 @@ def main(img):
     print("Enviando mensagem tipo 7")
     data = (0).to_bytes(1, "big")
     com.sendData(data,7) #tipo 7
-    print("-------------------------")
     time.sleep(3)
-
-    #Transmissao de dados (Mensagem tipo 4)
-    # a seguir ha um exemplo de dados sendo carregado para transmissao
-    # voce pode criar o seu carregando os dados de uma imagem. Tente descobrir
-    #como fazer isso
-    '''
-    print ("Gerando dados para transmissao")
-
-    ListTxBuffer =list()
-
-    with open(img, 'rb') as imagem:
-    	f = imagem.read()
-
-    txBuffer = bytes(f)
-    txLen    = len(txBuffer)
-
-    datarate = com.fisica.baudrate*8/11
-    tempo = txLen*8/datarate
-
-
-    # Transmite dado
-    print("Transmitindo {} bytes".format(txLen))
-    com.sendData(txBuffer)
-
-    # Atualiza dados da transmissão
-    com.tx.getStatus()
-
-    # Faz a recepção dos dados
-    print ("Recebendo dados .... ")
-
-    rxBuffer, nRx = rx.getNData()
-
-
-
-    # log
-    print ("Lido {} bytes".format(nRx))
-
-    if rxBuffer == "":
-        print("Falha no envio!")
-
-    else:
-         
-    '''
-
-    # Encerra comunicação
-    #time.sleep(1.5+tempo*1.4)
 
     print("-------------------------")
     print("Comunicação encerrada")

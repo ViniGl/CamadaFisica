@@ -96,31 +96,31 @@ class RX(object):
         eop = bytearray(a.to_bytes(3,'big'))
         byte_stuffing = bytearray(b'\n\x00\x0b\x00\x0c\x00')
         # byte_stuffing = bytearray(byte_stuffing.to_bytes(6, 'big'))
+        if len(b) <= 17:
+            print("Erro: Tamanho do pacote muito pequeno (menos de 17 bytes)")
+            return "", 0
+
         tipo = b[2]
         header = b[8:16]
         try:
             eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
-            if eop_pos < 17:
-                print("EOP posicao invalida")
-                self.clearBuffer()
-                return "",0
-            else:
-                size = int(str(int.from_bytes(header,byteorder='big')),2)
-                #print(data)
-                #print(eop)
-                #print(byte_stuffing)
-
-                #print(data)
-                if eop_pos == 0:
-                    self.clearBuffer()
-                    print("Erro: EOP não encontrado")
-                    return "", 0
-
-                payload = b[eop_pos - size: eop_pos]
         except Exception as e:
             self.clearBuffer()
-            print("Erro")
+            print("Erro eop e desstuffing: " + str(e))
             return "", 0
+        size = int(str(int.from_bytes(header,byteorder='big')),2)
+        #print(data)
+        #print(eop)
+        #print(byte_stuffing)
+
+        #print(data)
+        if eop_pos == 0:
+            self.clearBuffer()
+            print("Erro: EOP não encontrado")
+            return "", 0
+
+        payload = b[eop_pos - size: eop_pos]
+        
 
         if len(payload) != size:
             self.clearBuffer()
