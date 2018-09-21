@@ -27,8 +27,7 @@ class RX(object):
         self.threadStop  = False
         self.threadMutex = True
         self.READLEN     = 1024
-        self.packets     = []
-        self.allReceived = False
+        self.packets     =  []
         self.esperado    =  1
 
     def thread(self):
@@ -107,10 +106,7 @@ class RX(object):
         total = b[1]
         tipo = b[2]
         erro_npacote = b[3]
-        header = b[8].to_bytes(1,"big")
-
-        print("FFFFFFFFFFFFFFFFFFFFFFFFFFF")
-        print(erro_npacote)
+        header = b[8]
 
         if parte == self.esperado:
             eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
@@ -138,7 +134,6 @@ class RX(object):
             self.clearBuffer()
             self.threadResume()
             if parte == total:
-                self.allReceived = True
                 payload = "".join(self.packets)
                 return payload, tipo, erro_npacote
             else:
