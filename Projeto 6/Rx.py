@@ -12,7 +12,7 @@ import time
 
 # Threads
 import threading
-import CRCReceiver as crc
+import CRCReceiver as CrC
 # Class
 class RX(object):
     """ This class implements methods to handle the reception
@@ -108,7 +108,7 @@ class RX(object):
         erro_npacote = b[3]
         crcReceived = b[5]
         header = b[8]
-        print(b)
+        print(parte, total)
         if parte == self.esperado:
             eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
             # size = int(str(int.from_bytes(header,byteorder='big')),2)
@@ -127,11 +127,12 @@ class RX(object):
 
             eop = b[eop_pos:]
 
-            crc = crc.crc(payload,"10001")
+            crc = CrC.crc(payload,"10001")
 
             if crc != crcReceived:
+                self.clearBuffer()
                 self.threadResume()
-                return "",0,self.esperado
+                return "",8,self.esperado
 
             overhead = (header+len(payload)+len(eop))/len(payload)
             #print("Overhead: {:.3f}".format(overhead))
@@ -146,8 +147,11 @@ class RX(object):
             else:
                 joinPacket(payload)
         else:
+
+            self.clearBuffer()
+
             self.threadResume()
-            return "",0,self.esperado
+            return "",8,self.esperado
 
     def joinPacket(self,payload):
         while not flag:
