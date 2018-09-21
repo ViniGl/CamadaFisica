@@ -28,6 +28,7 @@ class RX(object):
         self.threadMutex = True
         self.READLEN     = 1024
         self.packets     =  []
+        self.done = False
         self.esperado    =  1
 
     def thread(self):
@@ -115,7 +116,7 @@ class RX(object):
             size = header
             if eop_pos == 0:
                 self.clearBuffer()
-    push             print("Erro: EOP não encontrado")
+                print("Erro: EOP não encontrado")
                 return "", 0, 0
 
             payload = b[eop_pos - size: eop_pos]
@@ -143,13 +144,13 @@ class RX(object):
             self.threadResume()
             if parte == total:
                 payload = "".join(self.packets)
+                self.done = True
                 return payload, tipo, erro_npacote
             else:
+                self.esperado+=1
                 joinPacket(payload)
         else:
-
             self.clearBuffer()
-
             self.threadResume()
             return "",8,self.esperado
 

@@ -112,33 +112,26 @@ def main():
         while msg2: #Synch 4 (Mensagem tipo 4)
             time.sleep(0.5)
             print("Esperando mensagem tipo 4")
-            buffer_tuple, nRx = rx.getNData()
-            msg, tipo, erro_npacote = buffer_tuple
 
-            if tipo == 4:
-                break
 
-            elif tipo == 3:
+            while not rx.done:
                 buffer_tuple, nRx = rx.getNData()
                 msg, tipo, erro_npacote = buffer_tuple
-                if tipo == 4:
+
+
+                if tipo == 3:
+                        count+=1
+                        sendSync6()
+
+                elif tipo == 7:
+                    flag5,msg2 = True
                     break
+
                 else:
-                    count+=1
+
                     sendSync6()
 
-            elif tipo == 7:
-                flag5= True
-                break
 
-            else:
-                count +=1
-                sendSync6()
-
-            if count == 20:
-                time.sleep(5)
-                rx.clearBuffer()
-                count =0
 
         start = time.time()
         while not flag5: #Synch 5 (Mensagem tipo 5)
