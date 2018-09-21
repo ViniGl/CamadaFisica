@@ -23,7 +23,7 @@ import time
 
 #serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM4"                  # Windows(variacao de)
+serialName = "COM5"                  # Windows(variacao de)
 
 
 def Interface():
@@ -43,13 +43,13 @@ def Interface():
 
 def divide(lista):
     i = 0
-    n = 8
+    n = 128
     lp = []
     while True:
         if len(lista) >= n:
             lp.append(lista[i:n])
-            i += 8
-            n += 8
+            i += 128
+            n += 128
         else:
             if len(lista[i:]) == 0:
                 return lp
@@ -72,9 +72,10 @@ def main(img):
     flag1 = False
     while not flag1: #Synch 1 (Mensagem tipo 1)
         print("Enviando mensagem tipo 1")
+        com.tx.tpacotes = 1
         data = (0).to_bytes(1, "big")
-        time.sleep(1)
-        com.sendData(data,1,0,0) #tipo 1
+        time.sleep(0.3)
+        com.sendData(data,1,1,0) #tipo 1
 
         print("Esperando mensagem tipo 2")
         #Synch 2 (Mensagem tipo 2)
@@ -88,51 +89,61 @@ def main(img):
         else:
             print("Mensagem tipo 2 não recebida")
         print("-------------------------")
-        time.sleep(1)
+        time.sleep(0.3)
 
 
     print("Enviando mensagem tipo 3")
-    data = (0).to_bytes(1, "big")
-    time.sleep(1)
-    com.sendData(data,3,0,0)
 
     print("Enviando mensagem tipo 4")
     with open(img, 'rb') as imagem:
         f = imagem.read()
     txBuffer = bytes(f)
     txLen    = len(txBuffer)
+    print(txBuffer)
 
-    
     pacotes = divide(txBuffer)
-    com.tx.npacotes = len(pacotes)
+    com.tx.tpacotes = len(pacotes)
 
-    print("Transmitindo {} bytes em {} pacotes".format(txLen, com.tx.npacotes))
-    time.sleep(1)
+    print("Transmitindo {} bytes em {} pacotes".format(txLen, com.tx.tpacotes))
+    time.sleep(0.3)
 
     pacote_trans = 0
-    while pacote_trans < com.tx.npacotes:
-        print("Enviando pacote {} de {}".format(pacote_trans, com.tx.npacotes))
-        com.sendData(pacotes[pacote_trans],4,pacote_trans,0)
-        time.sleep(2)
+    msg3 = False
+    while pacote_trans < com.tx.tpacotes:
+        if not msg3:
+            com.tx.tpacotes = 1
+            data = (0).to_bytes(1, "big")
+            time.sleep(0.3)
+            com.sendData(data,3,1,0)
+            com.tx.tpacotes = len(pacotes)
+
+        print("Enviando pacote {} de {}".format(pacote_trans+1, com.tx.tpacotes))
+        print(pacote_trans)
+        com.sendData(pacotes[pacote_trans],4,pacote_trans+1,0)
+        time.sleep(1)
 
         print("Esperando mensagem tipo 5")
         buffer_tuple, nRx = rx.getNData()
         rxbuffer, tipo, erro_npacote = buffer_tuple
         if tipo == 5: #TIPO 5
+            msg3 = True
             pacote_trans += 1
             continue
         elif tipo == 6: #TIPO 6
-            pacote_trans = erro_npacote
+            msg3 = True
             print("Falha no recebimento")
+        elif tipo == 8:
+            pacote_trans = erro_npacote-1
         elif tipo == "":
             print("Nada recebido")
 
     print("-------------------------")
     #Synch 7 (Mensagem tipo 7)
     print("Enviando mensagem tipo 7")
+    com.tx.tpacotes = 1
     data = (0).to_bytes(1, "big")
-    time.sleep(1)
-    com.sendData(data,7,0,0) #tipo 7
+    time.sleep(0.3)
+    com.sendData(data,7,1,0) #tipo 7
 
     print("-------------------------")
     print("Comunicação encerrada")

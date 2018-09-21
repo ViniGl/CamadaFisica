@@ -44,7 +44,7 @@ class TX(object):
             if(self.threadMutex):
                 self.transLen = self.fisica.write(self.buffer)
                 print("O tamanho total transmitido: {:.0f} bytes" .format(self.transLen))
-                time.sleep(1.5)
+                time.sleep(0.4)
                 try:
                     print("Through Put: {:.3f} bytes por segundo".format(self.getBufferLen()/self.fisica.tempo))
                 except:
@@ -88,8 +88,8 @@ class TX(object):
         data = bytearray(data)
         self.buffer = data
 
-        npacote = (n+1).to_bytes(1,"big") #Byte 1
-        tpacotes = (self.tpacotes)to_bytes(1,"big") #Byte 2
+        npacote = (n).to_bytes(1,"big") #Byte 1
+        tpacotes = (self.tpacotes).to_bytes(1,"big") #Byte 2
         tipo = (tipo).to_bytes(1,"big") #Byte 3
         erro_npacote = (erro).to_bytes(1,"big") #Byte 4
         resto = (0).to_bytes(4,"big") #Byte 5 a 8
@@ -101,12 +101,13 @@ class TX(object):
         data = self.stuffing(data)
 
         l = self.getBufferLen()
-        lb = "{0:b}".format(l)
-        lb = int(lb)
-        ps = lb.to_bytes(self.head_payload, "big") #Byte 9
+        ps = l.to_bytes(self.head_payload, "big") #Byte 9
 
         data = bytes(data)
-        self.buffer = npacote + tpacote + tipo + erro_npacote + resto + ps + q + data + e
+        print(data)
+
+        self.buffer = npacote + tpacotes + tipo + erro_npacote + resto + ps + q + data + e
+        
 
         self.threadMutex  = True
         print("Buffer enviado")
