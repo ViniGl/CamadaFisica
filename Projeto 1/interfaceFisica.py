@@ -45,6 +45,8 @@ class fisica(object):
         """
         self.port.close()
 
+    
+
     def flush(self):
         """ Clear serial data
         """
@@ -98,4 +100,3 @@ class fisica(object):
         except :
             print("[ERRO] interfaceFisica, read, decode. buffer : {}".format(rxBufferValid))
             return(b"", 0)
-

@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter.filedialog import askopenfilename
 
 class GUI():
 
@@ -7,7 +8,10 @@ class GUI():
 
     def interface(self):
         master = Tk()
+
         Label(master, text="Mensagem").grid(row=0)
+
+        img = askopenfilename(master)
 
         e1 = Entry(master)
 
@@ -20,4 +24,4 @@ class GUI():
         Button(master, text='Enviar', command=self.com.sendData(e1.get())).grid(row=3, column=0, sticky=W, pady=4)
         Button(master, text='Quit', command=master.quit).grid(row=3, column=1, sticky=W, pady=4)
 
-        mainloop( )
+        mainloop()

@@ -11,6 +11,11 @@
 
 from enlaceRecepcao import *
 import time
+<<<<<<< Updated upstream:Projeto 2/Recepcao/aplicacaoRecepcao.py
+=======
+from interfaceFisica import fisica
+import enlaceRx
+>>>>>>> Stashed changes:Projeto 2/aplicacaoRx.py
 # voce deverá descomentar e configurar a porta com através da qual ira fazer a
 # comunicaçao
 # Serial Com Port
@@ -18,16 +23,34 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
+<<<<<<< Updated upstream:Projeto 2/Recepcao/aplicacaoRecepcao.py
 serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 # serialName = "COM3"                  # Windows(variacao de)
+=======
+serialName = "/dev/ttyACM0"           # Ubuntu (variacao de)
+#serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
+# serialName = "COM3"                  # Windows(variacao de)
+
+# fisica = fisica()
+#
+# enlacerx = RX()
+
+
+print("porta COM aberta com sucesso")
+>>>>>>> Stashed changes:Projeto 2/aplicacaoRx.py
 
 
 
 def main():
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
     com = enlace(serialName)
+<<<<<<< Updated upstream:Projeto 2/Recepcao/aplicacaoRecepcao.py
     rx = com.rx
+=======
+    rx = RX()
+
+>>>>>>> Stashed changes:Projeto 2/aplicacaoRx.py
     # Ativa comunicacao
     com.enable()
 
@@ -40,9 +63,24 @@ def main():
     # Faz a recepção dos dados
     print ("Recebendo dados .... ")
 
+<<<<<<< Updated upstream:Projeto 2/Recepcao/aplicacaoRecepcao.py
     rxBuffer, nRx = rx.getNData()
 
 
+=======
+    check = False
+    tmp = 0
+    buffer = []
+    while not check:
+        if rx.getBufferLen():
+            rxBuffer, nRx = com.getData(enlacerx.getBuffer(-1))
+            recebido = rxBuffer
+            if recebido == tmp:
+                check = True
+            else:
+                buffer.append(recebido)
+                tmp = recebido
+>>>>>>> Stashed changes:Projeto 2/aplicacaoRx.py
 
     # log
     print ("Lido {} bytes".format(nRx))
@@ -57,7 +95,11 @@ def main():
     # n = 8
     # b = 11
     # time = D*((b+n)/n)
+<<<<<<< Updated upstream:Projeto 2/Recepcao/aplicacaoRecepcao.py
     #print('O tempo de transmissao foi aproximadamente {} segundos'.format(time))
+=======
+    # print('O tempo de transmissao foi aproximadamente {} segundos'.format(time))
+>>>>>>> Stashed changes:Projeto 2/aplicacaoRx.py
 
     # Encerra comunicação
     print("-------------------------")
