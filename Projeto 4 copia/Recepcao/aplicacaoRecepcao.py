@@ -69,7 +69,7 @@ def main():
         rx.clearBuffer()
         while not flag0:
             buffer_tuple, nRx = rx.getNData()
-            rxbuffer, tipo = buffer_tuple
+            rxbuffer, tipo,erro = buffer_tuple
             if tipo == 1:
                 print("Recebido solicitação de conexão")
                 flag0 = True
@@ -86,7 +86,7 @@ def main():
             time.sleep(0.5)
 
             print("Esperando mensagem tipo 3")
-            buffer_tuple, nRx = rx.getNData()
+            buffer_tuple, nRx,erro = rx.getNData()
             rxbuffer, tipo = buffer_tuple
 
             if tipo == 1:
@@ -113,7 +113,7 @@ def main():
             time.sleep(0.5)
             print("Esperando mensagem tipo 4")
             buffer_tuple, nRx = rx.getNData()
-            msg, tipo = buffer_tuple
+            msg, tipo = buffer_tuple,erro
 
             if tipo == 4:
                 break

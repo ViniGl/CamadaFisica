@@ -21,9 +21,9 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-#serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
+serialName = "/dev/ttyACM4"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM4"                  # Windows(variacao de)
+# serialName = "COM4"                  # Windows(variacao de)
 
 
 def main():
@@ -33,7 +33,7 @@ def main():
     tx = com.tx
     # Ativa comunicacao
     com.enable()
-
+    rx.clearBuffer()
 
     #verificar que a comunicação foi aberta
     print("-------------------------")
@@ -61,7 +61,7 @@ def main():
             flag6 = False
             break
 
-    
+
     msg2 = False
     while flag2:
         #Synch 2 (Mensagem tipo 2)
@@ -124,7 +124,7 @@ def main():
 
 
 
-    
+    start = time.time()
     while flag5:
         #Synch 5 (Mensagem tipo 5)
         print("Enviando mensagem tipo 5")
@@ -148,7 +148,9 @@ def main():
         print("Reenviando mensagem tipo 5")
         print("-------------------------")
         time.sleep(1)
-
+        final = time.time() - start
+        if final >= 20:
+            break
 
     print("-------------------------")
     print("Comunicação encerrada")

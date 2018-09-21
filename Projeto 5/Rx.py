@@ -12,6 +12,7 @@ import time
 
 # Threads
 import threading
+import CRCReceiver as crc
 
 # Class
 class RX(object):
@@ -28,6 +29,7 @@ class RX(object):
         self.threadMutex = True
         self.READLEN     = 1024
         self.packets     =  []
+        self.allReceived = True
         self.esperado    =  1
 
     def thread(self):
@@ -86,12 +88,18 @@ class RX(object):
         self.threadResume()
         return(b)
 
+
+
+    def joinPacket(self,payload):
+        self.packets.append(payload)
+
     def getBuffer(self):
         """ Remove n data from buffer
         """
 
         self.threadPause()
         b = self.buffer
+        self.clearBuffer()
         data = bytearray(b)
 
         a = 658188
@@ -105,12 +113,16 @@ class RX(object):
         parte = b[0]
         total = b[1]
         tipo = b[2]
-        erro_npacote = b[3]
-        header = b[8]
 
+        header = b[8].to_bytes(1,"big")
+        # print(parte)
+        # print("esperado : " + str(self.esperado))
+        # print(total)
         if parte == self.esperado:
             eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
-            size = int(str(int.from_bytes(header,byteorder='big')),2)
+            # print(heade   r)
+            size = int(str(int.from_bytes(header,byteorder='big')))
+
 
             if eop_pos == 0:
                 self.clearBuffer()
@@ -124,6 +136,13 @@ class RX(object):
                 print("Erro: Tamanho do payload não igual ao informado no Head")
                 return "", 0, 0
 
+            CrC = crc.crc(payload,'10001')
+
+            print(CrC, b[4])
+            if CrC != b[4]:
+                self.threadResume()
+                return "",8,self.esperado
+
             eop = b[eop_pos:]
 
             overhead = (len(header)+len(payload)+len(eop))/len(payload)
@@ -134,16 +153,18 @@ class RX(object):
             self.clearBuffer()
             self.threadResume()
             if parte == total:
-                payload = "".join(self.packets)
-                return payload, tipo, erro_npacote
+                self.allReceived = True
+                payload = b"".join(self.packets)
+                self.esperado = 1
+                return payload, tipo, 0
             else:
-                joinPacket(payload)
+                self.esperado += 1
+                self.joinPacket(payload)
+                return (-1,-1,0)
         else:
-            return "",0,self.esperado
+            self.threadResume()
+            return "",8,self.esperado
 
-    def joinPacket(self,payload):
-        while not flag:
-            self.packets.append(payload)
 
     def getNData(self):
         """ Read N bytes of data from the reception buffer
@@ -152,9 +173,9 @@ class RX(object):
         """
         check = False
         tmp = "nan"
-        print("Esperando ...")
+        # print("Esperando ...")
         # print(self.getBufferLen())
-        time.sleep(1)
+        # time.sleep(1)
         start_time = time.time()
         while self.getBufferLen()==0:
             if time.time()-start_time >= 5:

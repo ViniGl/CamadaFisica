@@ -49,7 +49,7 @@ class TX(object):
                     print("Through Put: {:.3f} bytes por segundo".format(self.getBufferLen()/self.fisica.tempo))
                 except:
                     pass
-                
+
                 self.threadMutex = False
 
     def threadStart(self):
@@ -91,7 +91,7 @@ class TX(object):
         npacote = (n).to_bytes(1,"big") #Byte 1
         tpacotes = (self.tpacotes).to_bytes(1,"big") #Byte 2
         tipo = (tipo).to_bytes(1,"big") #Byte 3
-        erro_npacote = (erro).to_bytes(1,"big") #Byte 4
+        erro_npacote = (int(erro)).to_bytes(1,"big") #Byte 4
         resto = (0).to_bytes(4,"big") #Byte 5 a 8
         q = (0).to_bytes(1,"big") #Byte 10
 
@@ -104,10 +104,7 @@ class TX(object):
         ps = l.to_bytes(self.head_payload, "big") #Byte 9
 
         data = bytes(data)
-        print(data)
-
         self.buffer = npacote + tpacotes + tipo + erro_npacote + resto + ps + q + data + e
-        
 
         self.threadMutex  = True
         print("Buffer enviado")

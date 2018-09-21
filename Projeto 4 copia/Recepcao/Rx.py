@@ -27,6 +27,7 @@ class RX(object):
         self.threadStop  = False
         self.threadMutex = True
         self.READLEN     = 1024
+        self.allReceived = False
         self.packets     =  []
         self.esperado    =  1
 
@@ -144,6 +145,7 @@ class RX(object):
             self.clearBuffer()
             self.threadResume()
             if parte == total:
+                self.allReceived = True
                 payload = "".join(self.packets)
                 return payload, tipo
             else:
