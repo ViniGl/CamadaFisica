@@ -75,8 +75,8 @@ def main(img):
         com.tx.tpacotes = 1
         data = (0).to_bytes(1, "big")
         time.sleep(0.3)
+<<<<<<< Updated upstream
         com.sendData(data,1,1,0) #tipo 1
-
         print("Esperando mensagem tipo 2")
         #Synch 2 (Mensagem tipo 2)
         buffer_tuple, nRx = rx.getNData()
@@ -93,6 +93,9 @@ def main(img):
 
 
     print("Enviando mensagem tipo 3")
+    time.sleep(0.3)
+    com.sendData(data,3,0,0)
+>>>>>>> Stashed changes
 
     print("Enviando mensagem tipo 4")
     with open(img, 'rb') as imagem:
@@ -101,11 +104,14 @@ def main(img):
     txLen    = len(txBuffer)
     print(txBuffer)
 
+<<<<<<< Updated Stashed changes
     pacotes = divide(txBuffer)
     com.tx.tpacotes = len(pacotes)
 
+<<<<<<< Updated upstream
     print("Transmitindo {} bytes em {} pacotes".format(txLen, com.tx.tpacotes))
-    time.sleep(0.3)
+=======
+leep(0.3)
 
     pacote_trans = 0
     msg3 = False
@@ -143,8 +149,8 @@ def main(img):
     com.tx.tpacotes = 1
     data = (0).to_bytes(1, "big")
     time.sleep(0.3)
+<<<<<<< Updated upstream
     com.sendData(data,7,1,0) #tipo 7
-
     print("-------------------------")
     print("Comunicação encerrada")
     print("-------------------------")

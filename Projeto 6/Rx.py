@@ -12,7 +12,8 @@ import time
 
 # Threads
 import threading
-import CRCReceiver as CrC
+import CRCReceiver as crc
+
 # Class
 class RX(object):
     """ This class implements methods to handle the reception
@@ -28,7 +29,7 @@ class RX(object):
         self.threadMutex = True
         self.READLEN     = 1024
         self.packets     =  []
-        self.done = False
+        self.allReceived = True
         self.esperado    =  1
 
     def thread(self):
@@ -87,12 +88,18 @@ class RX(object):
         self.threadResume()
         return(b)
 
+
+
+    def joinPacket(self,payload):
+        self.packets.append(payload)
+
     def getBuffer(self):
         """ Remove n data from buffer
         """
 
         self.threadPause()
         b = self.buffer
+        self.clearBuffer()
         data = bytearray(b)
 
         a = 658188
@@ -106,14 +113,17 @@ class RX(object):
         parte = b[0]
         total = b[1]
         tipo = b[2]
-        erro_npacote = b[3]
-        crcReceived = b[5]
-        header = b[8]
-        print(parte, total)
+
+        header = b[8].to_bytes(1,"big")
+        # print(parte)
+        # print("esperado : " + str(self.esperado))
+        # print(total)
         if parte == self.esperado:
             eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
-            # size = int(str(int.from_bytes(header,byteorder='big')),2)
-            size = header
+            # print(heade   r)
+            size = int(str(int.from_bytes(header,byteorder='big')))
+
+
             if eop_pos == 0:
                 self.clearBuffer()
                 print("Erro: EOP não encontrado")
@@ -126,16 +136,16 @@ class RX(object):
                 print("Erro: Tamanho do payload não igual ao informado no Head")
                 return "", 0, 0
 
-            eop = b[eop_pos:]
+            CrC = crc.crc(payload,'10001')
 
-            crc = CrC.crc(payload,"10001")
-
-            if crc != crcReceived:
-                self.clearBuffer()
+            print(CrC, b[4])
+            if CrC != b[4]:
                 self.threadResume()
                 return "",8,self.esperado
 
-            overhead = (header+len(payload)+len(eop))/len(payload)
+            eop = b[eop_pos:]
+
+            overhead = (len(header)+len(payload)+len(eop))/len(payload)
             #print("Overhead: {:.3f}".format(overhead))
             #print("EOP na posição " + str(eop_pos))
             print("Mensagem recebida tipo " + str(tipo))
@@ -143,20 +153,18 @@ class RX(object):
             self.clearBuffer()
             self.threadResume()
             if parte == total:
-                payload = "".join(self.packets)
-                self.done = True
-                return payload, tipo, erro_npacote
+                self.allReceived = True
+                payload = b"".join(self.packets)
+                self.esperado = 1
+                return payload, tipo, 0
             else:
-                self.esperado+=1
-                joinPacket(payload)
+                self.esperado += 1
+                self.joinPacket(payload)
+                return (-1,-1,0)
         else:
-            self.clearBuffer()
             self.threadResume()
             return "",8,self.esperado
 
-    def joinPacket(self,payload):
-        while not flag:
-            self.packets.append(payload)
 
     def getNData(self):
         """ Read N bytes of data from the reception buffer
@@ -165,9 +173,9 @@ class RX(object):
         """
         check = False
         tmp = "nan"
-        print("Esperando ...")
+        # print("Esperando ...")
         # print(self.getBufferLen())
-        time.sleep(1)
+        # time.sleep(1)
         start_time = time.time()
         while self.getBufferLen()==0:
             if time.time()-start_time >= 5:
@@ -180,7 +188,7 @@ class RX(object):
             if BufferRecebido == tmp:
                 check = True
                 print("Fim da recepção")
-
+                print("-------------------------")
             else:
                 tmp = BufferRecebido
 
@@ -207,3 +215,4 @@ class RX(object):
                     del(queue[-1])
             i += 1
         return eop_pos, queue
+s

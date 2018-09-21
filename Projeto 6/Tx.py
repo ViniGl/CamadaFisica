@@ -11,7 +11,6 @@
 import time
 import bitstring
 import numpy as np
-import crcTransmissao
 
 # Threads
 import threading
@@ -36,7 +35,6 @@ class TX(object):
         self.eop_size = 3
         self.stuff = 0
         self.tpacotes = 1
-        self.key = '10001'
 
 
     def thread(self):
@@ -51,7 +49,7 @@ class TX(object):
                     print("Through Put: {:.3f} bytes por segundo".format(self.getBufferLen()/self.fisica.tempo))
                 except:
                     pass
-                
+
                 self.threadMutex = False
 
     def threadStart(self):
@@ -93,11 +91,8 @@ class TX(object):
         npacote = (n).to_bytes(1,"big") #Byte 1
         tpacotes = (self.tpacotes).to_bytes(1,"big") #Byte 2
         tipo = (tipo).to_bytes(1,"big") #Byte 3
-        erro_npacote = (erro).to_bytes(1,"big") #Byte 4
-        
-        crc = (crcTransmissao.encodeData(self.buffer, self.key)).to_bytes(1,"big") #Byte 5
-        print("crc {} {}".format(crc, type(crc)))
-        resto = (0).to_bytes(3,"big") #Byte 6 a 8
+        erro_npacote = (int(erro)).to_bytes(1,"big") #Byte 4
+        resto = (0).to_bytes(4,"big") #Byte 5 a 8
         q = (0).to_bytes(1,"big") #Byte 10
 
         e = self.eop.to_bytes(self.eop_size, "big")
@@ -109,9 +104,7 @@ class TX(object):
         ps = l.to_bytes(self.head_payload, "big") #Byte 9
 
         data = bytes(data)
-
-        self.buffer = npacote + tpacotes + tipo + erro_npacote + crc + resto + ps + q + data + e
-        
+        self.buffer = npacote + tpacotes + tipo + erro_npacote + resto + ps + q + data + e
 
         self.threadMutex  = True
         print("Buffer enviado")
