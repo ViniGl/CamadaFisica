@@ -36,7 +36,7 @@ class TX(object):
         self.eop_size = 3
         self.stuff = 0
         self.tpacotes = 1
-        self.key = '10001'
+        self.key = '10111' #'10001'
 
 
     def thread(self):

@@ -23,7 +23,7 @@ import time
 
 #serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM14"                  # Windows(variacao de)
+serialName = "COM15"                  # Windows(variacao de)
 
 
 def Interface():
@@ -32,7 +32,7 @@ def Interface():
     Label(master, text="Mensagem").grid(row=0)
     # e1 = Entry(master)
     Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-    img = filedialog.askopenfilename(initialdir = "../img",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
+    img = filedialog.askopenfilename(initialdir = "../img",title = "Select file",filetypes = (("all files","*.*"),("jpeg files","*.jpg")))
     # e1.grid(row=0, column=1)
     Button(master, text='Enviar', command=lambda : main(img)).grid(row=4, column=0, sticky=W, pady=4)
     Button(master, text='Quit', command=master.quit).grid(row=4, column=1, sticky=W, pady=4)
@@ -118,7 +118,7 @@ def main(img):
             com.tx.tpacotes = len(pacotes)
 
         print("Enviando pacote {} de {}".format(pacote_trans+1, com.tx.tpacotes))
-        print(pacote_trans)
+        print(pacote_trans+1)
         com.sendData(pacotes[pacote_trans],4,pacote_trans+1,0)
         time.sleep(1)
 
