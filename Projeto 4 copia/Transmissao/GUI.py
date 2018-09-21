@@ -1,13 +1,15 @@
 from tkinter import *
+from tkinter.filedialog import askopenfilename
+
+
 
 class GUI():
 
-    def __init__(self,COM):
-        self.com = COM
-
     def interface(self):
+
         master = Tk()
         Label(master, text="Mensagem").grid(row=0)
+        img = askopenfilename(title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
 
         e1 = Entry(master)
 
@@ -17,7 +19,11 @@ class GUI():
             print("Mensagem enviada: %s\n" % (e1.get()))
             return e1.get()
 
-        Button(master, text='Enviar', command=self.com.sendData(e1.get())).grid(row=3, column=0, sticky=W, pady=4)
-        Button(master, text='Quit', command=master.quit).grid(row=3, column=1, sticky=W, pady=4)
+        Button(master, text='Enviar', command="").grid(row=2, column=0)
+        Button(master, text='Quit', command=master.quit).grid(row=2, column=1)
 
-        mainloop( )
+        mainloop()
+
+i = GUI()
+
+i.interface()

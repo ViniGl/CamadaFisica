@@ -102,19 +102,30 @@ class RX(object):
         """
 
         check = False
+<<<<<<< Updated upstream
         tmp = "nan"
         while self.getBufferLen()==0:
             print("Esperando ...")
 
+=======
+        tmp= "nan"
+        # while self.getBufferLen()==0:
+            # print(self.getBufferLen())
+>>>>>>> Stashed changes
 
         while not check:
+            print(self.getBufferLen())
             BufferRecebido = self.getBufferLen()
             print("recebido =" + str(BufferRecebido))
             if BufferRecebido == tmp:
                 check = True
             else:
                 tmp = BufferRecebido
+<<<<<<< Updated upstream
             time.sleep(1.3)
+=======
+            time.sleep(0.5)
+>>>>>>> Stashed changes
         #
         # while(self.getBufferLen() < size):
         #     time.sleep(0.05)

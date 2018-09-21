@@ -22,6 +22,7 @@ import time
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 #serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
 =======
 serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
@@ -43,6 +44,11 @@ def Interface():
     # Button(master, text='Quit', command=master.quit).grid(row=3, column=1, sticky=W, pady=4)
 
 
+=======
+serialName = "/dev/ttyACM0"           # Ubuntu (variacao de)
+#serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
+# serialName = "COM3"                  # Windows(variacao de)
+>>>>>>> Stashed changes
 
     mainloop()
 
@@ -67,7 +73,11 @@ def main():
     #como fazer isso
     print ("Gerando dados para transmissao")
 
+<<<<<<< Updated upstream
     ListTxBuffer =list()
+=======
+    # ListTxBuffer =list()
+>>>>>>> Stashed changes
 
 
     with open("../img/gatinho.jpg", 'rb') as imagem:
@@ -75,6 +85,11 @@ def main():
 
     txBuffer = bytes(f)
     txLen    = len(txBuffer)
+<<<<<<< Updated upstream
+=======
+    # print(txLen)
+    print("Total de bytes: {}".format(txLen))
+>>>>>>> Stashed changes
 
     datarate = com.fisica.baudrate*8/11
     tempo = txLen*8/datarate
@@ -84,6 +99,10 @@ def main():
     print("Transmitindo {} bytes".format(txLen))
     com.sendData(txBuffer)
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     # Atualiza dados da transmissão
     com.tx.getStatus()
 
@@ -96,6 +115,10 @@ def main():
     print("-------------------------")
     com.disable()
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     #so roda o main quando for executado do terminal ... se for chamado dentro de outro modulo nao roda
 if __name__ == "__main__":
     main()

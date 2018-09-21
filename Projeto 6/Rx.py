@@ -115,7 +115,7 @@ class RX(object):
             size = header
             if eop_pos == 0:
                 self.clearBuffer()
-                print("Erro: EOP não encontrado")
+    push             print("Erro: EOP não encontrado")
                 return "", 0, 0
 
             payload = b[eop_pos - size: eop_pos]

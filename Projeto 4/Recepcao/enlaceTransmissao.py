@@ -14,10 +14,10 @@ import time
 #from construct import *
 
 # Interface Física
-from fisicaRecepcao import fisica
+from fisicaTransmissao import fisica
 
 # enlace Tx e Rx
-from Rx import RX
+from Tx import TX
 
 class enlace(object):
     """ This class implements methods to the interface between Enlace and Application
@@ -27,31 +27,26 @@ class enlace(object):
         """ Initializes the enlace class
         """
         self.fisica      = fisica(name)
-        self.rx          = RX(self.fisica)
+        self.tx          = TX(self.fisica)
         self.connected   = False
 
     def enable(self):
         """ Enable reception and transmission
         """
         self.fisica.open()
-        self.rx.threadStart()
+        self.tx.threadStart()
 
     def disable(self):
         """ Disable reception and transmission
         """
-        self.rx.threadKill()
+        self.tx.threadKill()
         time.sleep(1)
         self.fisica.close()
 
     ################################
     # Application  interface       #
     ################################
-
-    def getData(self, size):
-        """ Get n data over the enlace interface
-        Return the byte array and the size of the buffer
+    def sendData(self, data):
+        """ Send data over the enlace interface
         """
-        print('Entrou na leitura e tentara ler ' + str(size) + ' bytes')
-        data = self.rx.getNData(size)
-
-        return(data, len(data))
+        self.tx.sendBuffer(data)

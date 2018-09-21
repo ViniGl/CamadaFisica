@@ -71,10 +71,10 @@ def crc (data, key):
         remainder = mod2div(appended_data, key)
         remainder = bin(int(remainder,2))
         remainder = int(remainder, 2)
-        print("remainder: {} {}".format(remainder, type(remainder)))
+        # print("remainder: {} {}".format(remainder, type(remainder)))
         # Append remainder in the original data
         return remainder
-        
+
     ans = decodeData(data, key)
     ans = int(ans).to_bytes(1,'big')
         # print("Remainder after decoding is->"+ans)

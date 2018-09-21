@@ -21,7 +21,7 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
-serialName = "/dev/ttyACM4"           # Ubuntu (variacao de)
+serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 # serialName = "COM9"                  # Windows(variacao de)
 com = enlace(serialName)
@@ -29,19 +29,19 @@ def sendSync2():
     print("Enviando mensagem tipo 2")
     data = (0).to_bytes(1, "big")
     time.sleep(1)
-    com.sendData(data,2,0,0) #tipo 2
+    com.sendData(data,2,1,0) #tipo 2
 
 def sendSync5():
     print("Enviando mensagem tipo 5")
     data = (0).to_bytes(1, "big")
     time.sleep(1)
-    com.sendData(data,5,0,0) #tipo 5
+    com.sendData(data,5,1,0) #tipo 5
 
 def sendSync6():
     print("Enviando mensagem tipo 6")
     data = (0).to_bytes(1, "big")
     time.sleep(1)
-    com.sendData(data,6,0,0)
+    com.sendData(data,6,1,0)
 
 def main():
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
@@ -122,9 +122,6 @@ def main():
                 buffer_tuple, nRx = rx.getNData()
                 msg, tipo, erro_npacote = buffer_tuple
                 if tipo == 4:
-                	f2 = open('ArquivoRecebido.jpg', 'wb')
-			        f2.write(msg)
-			        f2.close()
                     break
                 else:
                     count+=1
@@ -166,7 +163,7 @@ def main():
                 break
             time.sleep(0.3)
 
-        
+
 
         print("-------------------------")
         print("Comunicação encerrada")

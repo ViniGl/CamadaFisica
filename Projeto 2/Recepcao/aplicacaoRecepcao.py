@@ -63,6 +63,7 @@ def main():
     # Faz a recepção dos dados
     print ("Recebendo dados .... ")
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream:Projeto 2/Recepcao/aplicacaoRecepcao.py
     rxBuffer, nRx = rx.getNData()
 
@@ -81,7 +82,13 @@ def main():
                 buffer.append(recebido)
                 tmp = recebido
 >>>>>>> Stashed changes:Projeto 2/aplicacaoRx.py
+=======
 
+    rxBuffer, nRx = rx.getNData()
+>>>>>>> Stashed changes
+
+    print("Mensagem recebida !")
+    print("-------------------------------")
     # log
     print ("Lido {} bytes".format(nRx))
 
