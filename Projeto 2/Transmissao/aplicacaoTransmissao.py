@@ -21,10 +21,15 @@ import time
 #   python -m serial.tools.list_ports
 # se estiver usando windows, o gerenciador de dispositivos informa a porta
 
+<<<<<<< Updated upstream
 #serialName = "/dev/ttyACM3"           # Ubuntu (variacao de)
+=======
+serialName = "/dev/ttyACM1"           # Ubuntu (variacao de)
+>>>>>>> Stashed changes
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 serialName = "COM8"                  # Windows(variacao de)
 
+<<<<<<< Updated upstream
 def Interface():
 
     master = Tk()
@@ -42,6 +47,9 @@ def Interface():
     mainloop()
 
 def main(img):
+=======
+def main():
+>>>>>>> Stashed changes
     # Inicializa enlace ... variavel com possui todos os metodos e propriedades do enlace, que funciona em threading
     com = enlace(serialName)
 
@@ -62,7 +70,7 @@ def main(img):
     ListTxBuffer =list()
 
 
-    with open(img, 'rb') as imagem:
+    with open("../img/gatinho.jpg", 'rb') as imagem:
     	f = imagem.read()
 
     txBuffer = bytes(f)
@@ -90,4 +98,4 @@ def main(img):
 
     #so roda o main quando for executado do terminal ... se for chamado dentro de outro modulo nao roda
 if __name__ == "__main__":
-    Interface()
+    main()

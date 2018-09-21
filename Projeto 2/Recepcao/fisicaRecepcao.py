@@ -71,6 +71,10 @@ class fisica(object):
         self.decode seja chamada com números ímpares.
         """
         rxBuffer = self.port.read(nBytes)
+        datarate = self.fisica.baudrate*8/11
+        tempo = txLen*8/datarate
+
+        print("Tempo estimado para transmissao: {:.4f}".format(tempo))
         rxBufferConcat = self.rxRemain + rxBuffer
         nValid = (len(rxBufferConcat)//2)*2
         rxBufferValid = rxBufferConcat[0:nValid]
@@ -85,4 +89,3 @@ class fisica(object):
         except :
             print("[ERRO] interfaceFisica, read, decode. buffer : {}".format(rxBufferValid))
             return(b"", 0)
-
