@@ -140,6 +140,7 @@ class RX(object):
 
             print(CrC, b[4])
             if CrC != b[4]:
+                print("Dados alterados durante transmissao")
                 self.threadResume()
                 return "",8,self.esperado
 
@@ -152,6 +153,7 @@ class RX(object):
             print("-------------------------")
             self.clearBuffer()
             self.threadResume()
+            print(str(parte) + " de " + str(total) )
             if parte == total:
                 self.allReceived = True
                 payload = b"".join(self.packets)
@@ -215,4 +217,3 @@ class RX(object):
                     del(queue[-1])
             i += 1
         return eop_pos, queue
-s
