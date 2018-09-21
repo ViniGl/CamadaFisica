@@ -12,7 +12,7 @@ import time
 
 # Threads
 import threading
-
+import CRCReceiver as crc
 # Class
 class RX(object):
     """ This class implements methods to handle the reception
@@ -106,12 +106,13 @@ class RX(object):
         total = b[1]
         tipo = b[2]
         erro_npacote = b[3]
+        crcReceived = b[5]
         header = b[8]
-
+        print(b)
         if parte == self.esperado:
             eop_pos, data = self.eop_e_desstuffing(data,eop,byte_stuffing)
-            size = int(str(int.from_bytes(header,byteorder='big')),2)
-
+            # size = int(str(int.from_bytes(header,byteorder='big')),2)
+            size = header
             if eop_pos == 0:
                 self.clearBuffer()
                 print("Erro: EOP não encontrado")
@@ -126,7 +127,13 @@ class RX(object):
 
             eop = b[eop_pos:]
 
-            overhead = (len(header)+len(payload)+len(eop))/len(payload)
+            crc = crc.crc(payload,"10001")
+
+            if crc != crcReceived:
+                self.threadResume()
+                return "",0,self.esperado
+
+            overhead = (header+len(payload)+len(eop))/len(payload)
             #print("Overhead: {:.3f}".format(overhead))
             #print("EOP na posição " + str(eop_pos))
             print("Mensagem recebida tipo " + str(tipo))
@@ -139,6 +146,7 @@ class RX(object):
             else:
                 joinPacket(payload)
         else:
+            self.threadResume()
             return "",0,self.esperado
 
     def joinPacket(self,payload):
@@ -167,7 +175,7 @@ class RX(object):
             if BufferRecebido == tmp:
                 check = True
                 print("Fim da recepção")
-                print("-------------------------")
+
             else:
                 tmp = BufferRecebido
 
